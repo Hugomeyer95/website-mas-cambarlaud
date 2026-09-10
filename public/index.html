@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="fr" class="no-js" data-theme="golden-hour">
+<head>
+<script>document.documentElement.classList.replace('no-js','js');</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mas Cambarlaud — Maison de charme à louer, Uzès</title>
+<meta name="description" content="Mas Cambarlaud : maison familiale à l'ancienne à louer près d'Uzès, 12 personnes, piscine de 12m, climatisation intégrale, sur un domaine paysagé de 4000m².">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<link rel="stylesheet" href="/shared/css/shared.css">
+<style>
+  :root{
+    --cream: #FBF3E7;
+    --gold: #C97A3D;
+    --accent: #C97A3D;
+    --rose: #B5605A;
+    --dusk: #2E3B52;
+    --ink: #211C18;
+    --paper: #FBF3E7;
+
+    --font-display: "Instrument Serif", serif;
+    --font-body: "Manrope", -apple-system, sans-serif;
+
+    --space-2: clamp(1rem, 0.9rem + 0.5vw, 1.5rem);
+    --space-3: clamp(1.75rem, 1.5rem + 1.25vw, 3rem);
+    --space-4: clamp(3rem, 2rem + 4vw, 7rem);
+    --space-5: clamp(4rem, 2.5rem + 6vw, 11rem);
+
+    --max-w: 1360px;
+  }
+  *,*::before,*::after{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior: auto; }
+    *,*::before,*::after{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  }
+  body{
+    margin: 0;
+    font-family: var(--font-body);
+    color: var(--ink);
+    background: var(--cream);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  img{ max-width: 100%; display: block; }
+  a{ color: inherit; }
+  h1,h2{ font-family: var(--font-display); font-weight: 400; margin: 0; }
+  :focus-visible{ outline: 2px solid var(--gold); outline-offset: 3px; }
+
+  .wrap{ max-width: var(--max-w); margin-inline: auto; padding-inline: var(--space-3); }
+  .eyebrow{
+    font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.18em; font-weight: 600; color: var(--gold);
+  }
+
+  /* ---------- Header: fixed cartouche ---------- */
+  header.cartouche{
+    position: fixed; top: 1rem; left: 50%; transform: translateX(-50%); z-index: 300;
+    background: rgb(20 14 10 / .68);
+    backdrop-filter: blur(12px);
+    border-radius: 999px;
+    padding: 0.5rem 0.6rem 0.5rem 1.3rem;
+    box-shadow: 0 12px 30px -14px rgb(0 0 0 / .5);
+    max-width: calc(100vw - 1.5rem);
+  }
+  .nav-inner{ display: flex; align-items: center; gap: var(--space-2); }
+  .wordmark{
+    font-family: var(--font-display); font-style: italic; font-size: 1.5rem; color: #fff; text-decoration: none; white-space: nowrap;
+  }
+  nav ul{ list-style: none; display: flex; gap: 1.3rem; margin:0; padding:0; }
+  nav a{ text-decoration: none; color: #fff; font-size: 0.84rem; opacity: 0.88; white-space: nowrap; }
+  nav a:hover{ opacity: 1; }
+  .cartouche-right{ display: flex; align-items: center; gap: 0.8rem; padding-inline-start: 0.3rem; }
+  .mc-gallery-trigger{ color: #fff; }
+  .mc-lang-switch{ border-color: rgb(255 255 255 / .4); }
+  .mc-lang-switch button{ color: #fff; }
+  .nav-toggle{ display: none; }
+  @media (max-width: 900px){
+    nav ul{ display: none; }
+    header.cartouche{ padding: 0.5rem 0.6rem; }
+    nav ul.open{
+      display: flex; flex-direction: column;
+      position: fixed; top: 4.2rem; left: 50%; transform: translateX(-50%);
+      background: rgb(20 14 10 / .92); border-radius: 18px; padding: 1rem 1.4rem; gap: 0.8rem; z-index: 300;
+    }
+    .nav-toggle{
+      display: inline-flex; background: none; border: 1px solid #fff; color:#fff;
+      border-radius: 999px; padding: 0.35rem 0.8rem; font-size: 0.75rem; cursor: pointer;
+    }
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{ position: relative; height: 100svh; min-height: 620px; display: flex; align-items: flex-end; color: #fff; overflow: hidden; }
+  .hero img{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .hero::after{ content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgb(20 14 10 / .8) 0%, rgb(20 14 10 / .2) 45%, rgb(20 14 10 / .08) 70%); }
+  .hero-content{ position: relative; z-index: 2; padding-block-end: var(--space-4); width: 100%; }
+  .hero h1{ font-size: clamp(2.4rem, 1.7rem + 3.6vw, 4.8rem); line-height: 1.05; font-style: italic; max-width: 20ch; }
+  .hero p.lede{ margin-top: var(--space-2); max-width: 52ch; font-size: 1.1rem; color: rgb(255 255 255 / .92); }
+  .hero .stat-row{ display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-3); }
+  .hero .stat-row .stat{ font-family: var(--font-display); font-style: italic; }
+  .hero .stat-row .stat strong{ font-size: 1.5rem; font-style: normal; display: block; }
+  .hero .stat-row .stat span{ font-size: 0.95rem; opacity: 0.85; }
+
+  .js .reveal{ opacity: 0; transform: translateY(24px); transition: opacity 0.9s ease, transform 0.9s ease; }
+  .reveal.is-visible{ opacity: 1; transform: none; }
+
+  .story{ display: grid; grid-template-columns: 1fr 1fr; min-height: 88vh; align-items: stretch; }
+  .story.reverse{ direction: rtl; }
+  .story.reverse > *{ direction: ltr; }
+  .story .photo{ overflow: hidden; }
+  .story .photo img{ width: 100%; height: 100%; object-fit: cover; min-height: 420px; }
+  .story .copy{ display: flex; flex-direction: column; justify-content: center; padding: var(--space-4); }
+  .story h2{ font-size: clamp(2rem, 1.5rem + 2vw, 3.4rem); font-style: italic; margin-bottom: var(--space-2); }
+  .story p{ max-width: 42ch; font-size: 1.05rem; color: color-mix(in srgb, var(--ink) 85%, transparent); }
+  @media (max-width: 860px){
+    .story, .story.reverse{ grid-template-columns: 1fr; direction: ltr; }
+    .story .photo img{ min-height: 320px; }
+    .story .copy{ padding: var(--space-3); }
+  }
+
+  .band{ position: relative; min-height: 92vh; display: flex; align-items: center; justify-content: center; color: #fff; text-align: center; overflow: hidden; }
+  .band img{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .band::after{ content:""; position: absolute; inset:0; background: rgb(20 14 10 / .45); }
+  .band-content{ position: relative; z-index: 2; padding: var(--space-3); }
+  .band h2{ font-size: clamp(2.2rem, 1.6rem + 3vw, 4.2rem); font-style: italic; }
+  .band p{ max-width: 46ch; margin-inline: auto; margin-top: var(--space-2); font-size: 1.05rem; color: rgb(255 255 255 / .92); }
+
+  /* ---------- Trio sections (page 6 & 7) ---------- */
+  .trio{ padding-block: var(--space-5); }
+  .trio .eyebrow{ display: block; text-align: center; margin-bottom: 0.6rem; }
+  .trio h2{ text-align: center; font-style: italic; font-size: clamp(1.8rem, 1.4rem + 1.6vw, 2.8rem); margin-bottom: var(--space-4); }
+  .trio-grid{ display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); }
+  .trio-grid figure{ margin: 0; }
+  .trio-grid .ph{ aspect-ratio: 4/5; overflow: hidden; border-radius: 6px; }
+  .trio-grid img{ width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+  .trio-grid figure:hover img{ transform: scale(1.04); }
+  .trio-grid figcaption{ margin-top: 0.8rem; text-align: center; font-family: var(--font-display); font-style: italic; font-size: 1.1rem; }
+  @media (max-width: 760px){ .trio-grid{ grid-template-columns: 1fr; max-width: 420px; margin-inline: auto; } }
+
+  /* ---------- Alentours ---------- */
+  .alentours{ background: var(--dusk); color: var(--cream); padding-block: var(--space-5); }
+  .alentours .eyebrow{ color: var(--gold); }
+  .alentours h2{ font-style: italic; font-size: clamp(2rem,1.5rem + 2vw,3.2rem); margin-bottom: var(--space-3); max-width: 24ch; }
+  .place-row{ display: grid; grid-template-columns: 1fr 2fr 1fr; gap: var(--space-2); padding-block: var(--space-2); border-top: 1px solid rgb(255 255 255 / .18); align-items: baseline; }
+  .place-row:last-child{ border-bottom: 1px solid rgb(255 255 255 / .18); }
+  .place-row .dist{ font-size: 0.85rem; color: var(--gold); }
+  .place-row h3{ font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: 1.4rem; margin:0; }
+  .place-row p{ margin: 0; font-size: 0.92rem; color: rgb(255 255 255 / .8); text-align: right; }
+  @media (max-width: 700px){ .place-row{ grid-template-columns: 1fr; gap: 0.3rem; } .place-row p{ text-align: left; } }
+
+  /* ---------- Localisation ---------- */
+  .localisation{ padding-block: var(--space-5); }
+  .localisation .eyebrow{ display:block; text-align:center; margin-bottom: var(--space-2); }
+  .localisation h2{ font-style: italic; font-size: clamp(2rem,1.5rem + 2vw,3.2rem); text-align:center; margin-bottom: var(--space-2); }
+  .localisation p.lede{ max-width: 60ch; margin-inline:auto; text-align:center; color: color-mix(in srgb, var(--ink) 85%, transparent); }
+  .map-box{ margin-top: var(--space-4); width: 100%; height: clamp(280px, 38vw, 460px); border-radius: 4px; overflow: hidden; }
+  .map-note{ margin-top: var(--space-2); text-align:center; font-size: 0.78rem; color: color-mix(in srgb, var(--ink) 55%, transparent); }
+  .leaflet-container{ font-family: var(--font-body); }
+
+  /* ---------- Réservation ---------- */
+  .booking-section{ padding-block: var(--space-5); background: color-mix(in srgb, var(--gold) 8%, var(--cream)); }
+  .booking-section .head{ text-align: center; max-width: 60ch; margin-inline: auto; margin-bottom: var(--space-4); }
+  .booking-section h2{ font-style: italic; font-size: clamp(2rem, 1.5rem + 2vw, 3.2rem); margin-bottom: 0.6rem; }
+  .booking-section .head p{ color: color-mix(in srgb, var(--ink) 80%, transparent); }
+  .booking-panel{ background: #fff; border-radius: 18px; padding: var(--space-4); box-shadow: 0 30px 60px -30px rgb(46 59 82 / .35); }
+
+  .contact-direct{
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 0;
+    margin-bottom: var(--space-4);
+    border-top: 1px solid color-mix(in srgb, var(--ink) 15%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--ink) 15%, transparent);
+  }
+  .contact-direct-item{
+    display: flex; flex-direction: column; align-items: center; gap: 0.25rem;
+    padding: var(--space-2) var(--space-4);
+    text-decoration: none; color: var(--ink);
+    border-inline-start: 1px solid color-mix(in srgb, var(--ink) 15%, transparent);
+  }
+  .contact-direct-item:first-child{ border-inline-start: none; }
+  .contact-direct-item .k{ font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold); }
+  .contact-direct-item .v{ font-family: var(--font-display); font-style: italic; font-size: 1.15rem; }
+  a.contact-direct-item:hover .v{ text-decoration: underline; }
+  @media (max-width: 640px){
+    .contact-direct{ flex-direction: column; border: none; }
+    .contact-direct-item{ border-inline-start: none; border-top: 1px solid color-mix(in srgb, var(--ink) 15%, transparent); width: 100%; }
+    .contact-direct-item:first-child{ border-top: none; }
+  }
+
+  footer{ text-align:center; padding-block: var(--space-3); font-size: 0.75rem; color: color-mix(in srgb, var(--ink) 60%, transparent); }
+</style>
+</head>
+<body>
+
+<header class="cartouche">
+  <div class="nav-inner">
+    <a class="wordmark" href="#top">Mas Cambarlaud</a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="primary-nav" onclick="const n=document.getElementById('primary-nav'); const open=n.classList.toggle('open'); this.setAttribute('aria-expanded', open);">Menu</button>
+    <nav>
+      <ul id="primary-nav">
+        <li><a href="#recit" data-edit-id="nav.mas" data-en="The House">Le Mas</a></li>
+        <li><a href="#soir" data-edit-id="nav.pool" data-en="The pool">La piscine</a></li>
+        <li><a href="#interieurs" data-edit-id="nav.interiors" data-en="Interiors">Intérieurs</a></li>
+        <li><a href="#alentours" data-edit-id="nav.nearby" data-en="Nearby">Alentours</a></li>
+        <li><a href="#booking" data-edit-id="nav.book" data-en="Book">Réserver</a></li>
+      </ul>
+    </nav>
+    <div class="cartouche-right">
+      <button type="button" class="mc-gallery-trigger" data-open-gallery data-edit-id="nav.gallery" data-en="Gallery">Galerie</button>
+      <div class="mc-lang-switch" data-lang-switch role="group" aria-label="Choisir la langue / Choose language">
+        <button type="button" data-lang="fr" aria-pressed="true">FR</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <img src="/assets/images/IMG_3862.jpeg" data-edit-id="hero.photo" alt="Le Mas Cambarlaud, façade en pierre">
+    <div class="hero-content wrap">
+      <p class="eyebrow" style="color:#f2c894;" data-edit-id="hero.eyebrow" data-en="Uzès, Gard — seasonal rental">Uzès, Gard — location saisonnière</p>
+      <h1 data-edit-id="hero.title" data-en="An architect's house, carved from stone and light">Une maison d'architecte, taillée dans la pierre et la lumière</h1>
+      <p class="lede" data-edit-id="hero.lede" data-en="4km from Uzès — a traditionally built family house for 12 people, 240m², a 12-metre pool, six air-conditioned bedrooms, set on a 4,000m² estate deep in nature, in rare comfort.">À 4 km d'Uzès, maison familiale à l'ancienne pour 12 personnes de 240 m² — piscine de 12 mètres — six chambres climatisées, posée sur un domaine de 4000 m² en pleine nature, dans un confort rare.</p>
+      <div class="stat-row">
+        <div class="stat"><strong data-edit-id="hero.stat1.n">12</strong><span data-edit-id="hero.stat1.l" data-en="people">personnes</span></div>
+        <div class="stat"><strong data-edit-id="hero.stat2.n">12 m</strong><span data-edit-id="hero.stat2.l" data-en="pool">piscine</span></div>
+        <div class="stat"><strong data-edit-id="hero.stat3.n" data-en="Full">Intégrale</strong><span data-edit-id="hero.stat3.l" data-en="air conditioning">climatisation</span></div>
+        <div class="stat"><strong data-edit-id="hero.stat4.n">240m²</strong><span data-edit-id="hero.stat4.l" data-en="family house">maison familiale</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="recit">
+    <div class="story reveal">
+      <div class="photo"><img src="/assets/images/IMG_0197.jpeg" data-edit-id="story1.photo" alt="Le parc du Mas Cambarlaud, pelouse et jardin"></div>
+      <div class="copy">
+        <p class="eyebrow" data-edit-id="story1.eyebrow" data-en="On the edge of the woods">En lisière de bois</p>
+        <h2 data-edit-id="story1.title" data-en="A house that breathes">Une maison qui respire</h2>
+        <p data-edit-id="story1.text" data-en="On a 4,000m² landscaped estate, between lawn watered every night and Mediterranean planting, the family house unfolds its light-filled spaces — total calm, with not a single neighbour in sight.">Sur un parc paysagé de 4000m², entre pelouse arrosée chaque nuit et essences méditerranéennes, la maison familiale déploie ses volumes lumineux — calme assuré sans aucun vis-à-vis.</p>
+      </div>
+    </div>
+
+    <div class="story reverse reveal">
+      <div class="photo"><img src="/assets/images/facade-roses.jpg" data-edit-id="story2.photo" alt="Roses grimpantes le long de la façade en pierre du mas"></div>
+      <div class="copy">
+        <p class="eyebrow" data-edit-id="story2.eyebrow" data-en="Details">Détails</p>
+        <h2 data-edit-id="story2.title" data-en="Stone, roses, and time">La pierre, les roses, le temps</h2>
+        <p data-edit-id="story2.text" data-en="Three basket-arch stone arches, climbing roses, a century-old olive tree for shade — every detail tells of a house lived in for a long time, not built for the occasion. Under the veranda: a barbecue with chimney, table tennis, pétanque and mölkky.">Trois arches en anse de panier, des roses qui grimpent, un olivier centenaire pour ombre — chaque détail raconte une maison habitée depuis longtemps, pas construite pour l'occasion. Sous la véranda : barbecue à cheminée, ping-pong, pétanque et mölkky.</p>
+      </div>
+    </div>
+
+    <div class="story reveal">
+      <div class="photo"><img src="/assets/images/bedroom-suite.jpg" data-edit-id="story3.photo" alt="Chambre baignée de lumière avec vue sur le jardin"></div>
+      <div class="copy">
+        <p class="eyebrow" data-edit-id="story3.eyebrow" data-en="Six bedrooms">Six chambres</p>
+        <h2 data-edit-id="story3.title" data-en="Rest, without compromise">Le repos, sans compromis</h2>
+        <p data-edit-id="story3.text" data-en="Six light-filled bedrooms, 5 of them south-facing (3 with a double bed, 3 with twin beds), five bathrooms including one by the pool, all air-conditioned — room for twelve people in real comfort, not close quarters.">Six chambres lumineuses dont 5 orientées sud (3 en lit double, 3 en lits jumeaux), cinq salles de bain dont une côté piscine, toutes climatisées — de quoi accueillir douze personnes dans un vrai confort, pas dans la promiscuité.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="soir" class="band">
+    <img src="/assets/images/IMG_8278.jpeg" data-edit-id="pool.photo" alt="La piscine de 12 mètres du Mas Cambarlaud et le mas en arrière-plan">
+    <div class="band-content">
+      <p class="eyebrow" style="color:#f2c894;" data-edit-id="pool.eyebrow" data-en="The pool">La piscine</p>
+      <h2 data-edit-id="pool.title" data-en="12 metres of gentle water, under the stars">12 mètres d'eau douce, sous les étoiles</h2>
+      <p data-edit-id="pool.text" data-en="Treated with a UV lamp to be as gentle as possible on the skin, the pool lights up every evening alongside the veranda and garden — for dinners that stretch late into the night.">Traitée par lampe UV pour respecter au mieux la peau, la piscine s'illumine chaque soir aux côtés de la véranda et du jardin — pour des dîners qui s'étirent tard.</p>
+    </div>
+  </section>
+
+  <section id="interieurs" class="trio">
+    <div class="wrap">
+      <p class="eyebrow" data-edit-id="trio1.eyebrow" data-en="Inside the house">À l'intérieur</p>
+      <h2 data-edit-id="trio1.title" data-en="Spaces to live in">Des espaces à vivre</h2>
+      <div class="trio-grid">
+        <figure class="reveal">
+          <div class="ph"><img src="/assets/images/IMG_0475_edited.jpeg" data-edit-id="trio1.photo1" alt="Cuisine grande largeur du Mas Cambarlaud"></div>
+          <figcaption data-edit-id="trio1.cap1" data-en="Wide-format kitchen">Cuisine grande largeur</figcaption>
+        </figure>
+        <figure class="reveal">
+          <div class="ph"><img src="/assets/images/IMG_0408.jpeg" data-edit-id="trio1.photo2" alt="Véranda fraîche du Mas Cambarlaud"></div>
+          <figcaption data-edit-id="trio1.cap2" data-en="The veranda, cool shade">Véranda et fraîcheur</figcaption>
+        </figure>
+        <figure class="reveal">
+          <div class="ph"><img src="/assets/images/IMG_3133.jpeg" data-edit-id="trio1.photo3" alt="Chambre taupe à lits jumeaux"></div>
+          <figcaption data-edit-id="trio1.cap3" data-en="The &quot;taupe&quot; twin room">Chambre « taupe » à lits jumeaux</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="chambres" class="trio">
+    <div class="wrap">
+      <p class="eyebrow" data-edit-id="trio2.eyebrow" data-en="Bedrooms &amp; bathrooms">Chambres &amp; salles de bain</p>
+      <h2 data-edit-id="trio2.title" data-en="Every room, its own character">Chaque chambre, son caractère</h2>
+      <div class="trio-grid">
+        <figure class="reveal">
+          <div class="ph"><img src="/assets/images/IMG_3135.jpeg" data-edit-id="trio2.photo1" alt="Chambre lilas à lit double"></div>
+          <figcaption data-edit-id="trio2.cap1" data-en="The &quot;lilac&quot; double room">Chambre « lilas » à lit double</figcaption>
+        </figure>
+        <figure class="reveal">
+          <div class="ph"><img src="/assets/images/IMG_3139.jpeg" data-edit-id="trio2.photo2" alt="Salle de bain granit"></div>
+          <figcaption data-edit-id="trio2.cap2" data-en="The &quot;granite&quot; bathroom">Salle de bain « granit »</figcaption>
+        </figure>
+        <figure class="reveal">
+          <div class="ph"><img src="/assets/images/IMG_3141.jpeg" data-edit-id="trio2.photo3" alt="Salle de bain galets"></div>
+          <figcaption data-edit-id="trio2.cap3" data-en="The &quot;pebble&quot; bathroom">Salle de bain « galets »</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="alentours" class="alentours">
+    <div class="wrap">
+      <p class="eyebrow" data-edit-id="alentours.eyebrow" data-en="Nearby">Alentours</p>
+      <h2 data-edit-id="alentours.title" data-en="At the gates of France's first duchy">Aux portes du premier duché de France</h2>
+
+      <div class="place-row">
+        <span class="dist" data-edit-id="alentours.1.dist">4 km</span>
+        <h3 data-edit-id="alentours.1.title">Uzès</h3>
+        <p data-edit-id="alentours.1.desc" data-en="Place aux Herbes and its arcades, one of the finest Provençal markets, France's first duchy.">Place aux Herbes et ses arcades, marché provençal parmi les plus beaux, premier duché de France.</p>
+      </div>
+      <div class="place-row">
+        <span class="dist" data-edit-id="alentours.2.dist" data-en="20 min">20 min</span>
+        <h3 data-edit-id="alentours.2.title" data-en="Pont du Gard">Pont du Gard</h3>
+        <p data-edit-id="alentours.2.desc" data-en="A Roman bridge and the wild gorges of the Gardon.">Pont romain et les gorges sauvages du Gardon.</p>
+      </div>
+      <div class="place-row">
+        <span class="dist" data-edit-id="alentours.3.dist">~45 min</span>
+        <h3 data-edit-id="alentours.3.title">Cévennes &amp; gorges de l'Ardèche</h3>
+        <p data-edit-id="alentours.3.desc" data-en="The Anduze bamboo grove. Wild nature, hiking, canoeing at the southern end of the gorges.">La bambouseraie d'Anduze. Nature sauvage, randonnées, canoë au sud des gorges.</p>
+      </div>
+      <div class="place-row">
+        <span class="dist" data-edit-id="alentours.4.dist">~35 min</span>
+        <h3 data-edit-id="alentours.4.title">Avignon</h3>
+        <p data-edit-id="alentours.4.desc" data-en="The city of the Popes and its festival.">La cité des Papes et son festival.</p>
+      </div>
+      <div class="place-row">
+        <span class="dist" data-edit-id="alentours.5.dist">~30 min</span>
+        <h3 data-edit-id="alentours.5.title">Nîmes</h3>
+        <p data-edit-id="alentours.5.desc" data-en="The Roman arenas and Maison Carrée, the Fontaine gardens.">Arènes et maison carrée romaines, jardins de la Fontaine.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="localisation" class="localisation">
+    <div class="wrap">
+      <p class="eyebrow" data-edit-id="location.eyebrow" data-en="Location">Localisation</p>
+      <h2 data-edit-id="location.title" data-en="Somewhere between Uzès and the garrigue">Quelque part entre Uzès et la garrigue</h2>
+      <p class="lede" data-edit-id="location.text" data-en="Mas Cambarlaud is located in the Montaren-et-Saint-Médiers countryside, a few minutes from Uzès. Out of respect for the property's privacy, only an approximate area is shown here — the exact address is shared once the booking is confirmed.">Le Mas Cambarlaud se trouve dans la campagne de Montaren-et-Saint-Médiers, à quelques minutes d'Uzès. Par respect pour la tranquillité du lieu, seule une zone approximative est indiquée ici — l'adresse exacte est communiquée après confirmation de la réservation.</p>
+      <div id="map-final" class="map-box" role="img" aria-label="Carte approximative de la zone au nord de Montaren-et-Saint-Médiers, Gard"></div>
+      <p class="map-note" data-edit-id="location.note" data-en="Indicative area — not the property's exact location.">Zone indicative — non l'emplacement exact de la propriété.</p>
+    </div>
+  </section>
+
+  <section id="booking" class="booking-section">
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow" data-edit-id="booking.eyebrow" data-en="Availability — July &amp; August">Disponibilités — juillet &amp; août</p>
+        <h2 data-edit-id="booking.title" data-en="Let's talk about your stay">Parlons de votre séjour</h2>
+        <p data-edit-id="booking.subtitle" data-en="Choose your dates below and send us your request — we'll confirm by email as soon as possible.">Choisissez vos dates ci-dessous et envoyez-nous votre demande — nous confirmons par email dans les meilleurs délais.</p>
+      </div>
+
+      <div class="contact-direct">
+        <div class="contact-direct-item">
+          <span class="k" data-edit-id="contact.host.label" data-en="Hosts">Hôtes</span>
+          <span class="v" data-edit-id="contact.host.value">Famille Poullet</span>
+        </div>
+        <a class="contact-direct-item" href="tel:+33675059140">
+          <span class="k" data-edit-id="contact.phone.label" data-en="Phone">Téléphone</span>
+          <span class="v" data-edit-id="contact.phone.value">+33 6 75 05 91 40</span>
+        </a>
+        <a class="contact-direct-item" href="mailto:jph@chemint.fr">
+          <span class="k" data-edit-id="contact.email.label" data-en="Email">Email</span>
+          <span class="v" data-edit-id="contact.email.value">jph@chemint.fr</span>
+        </a>
+      </div>
+
+      <div class="booking-panel">
+        <div id="mc-booking"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer data-edit-id="footer.text" data-en="Mas Cambarlaud — Montaren-et-Saint-Médiers, Gard">Mas Cambarlaud — Montaren-et-Saint-Médiers, Gard</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="/shared/js/api.js"></script>
+<script src="/shared/js/fonts.js"></script>
+<script src="/shared/js/content-engine.js"></script>
+<script src="/shared/js/gallery-data.js"></script>
+<script src="/shared/js/gallery.js"></script>
+<script src="/shared/js/booking.js"></script>
+<script src="/shared/js/editor.js"></script>
+<script>
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    const items = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting){ e.target.classList.add('is-visible'); io.unobserve(e.target); } });
+    }, { threshold: 0.15 });
+    items.forEach(i => io.observe(i));
+  } else {
+    document.querySelectorAll('.reveal').forEach(i => i.classList.add('is-visible'));
+  }
+
+  (function(){
+    // Zone approximative, plus au nord sur la route de Jols (D125) — pas d'adresse précise affichée.
+    var center = [44.039, 4.388];
+    var map = L.map('map-final', { scrollWheelZoom: false }).setView(center, 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 17
+    }).addTo(map);
+    L.circle(center, {
+      radius: 1300,
+      color: '#C97A3D',
+      weight: 1.5,
+      fillColor: '#C97A3D',
+      fillOpacity: 0.18
+    }).addTo(map);
+  })();
+</script>
+
+</body>
+</html>

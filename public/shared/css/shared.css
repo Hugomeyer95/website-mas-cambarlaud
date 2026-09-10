@@ -1,0 +1,201 @@
+/* Shared components: language switch, gallery, booking widget, edit overlay.
+   Each theme defines --accent / --ink / --paper / --font-display / --font-body;
+   sensible fallbacks are provided so this file works standalone too. */
+
+.mc-positioned { position: relative; }
+
+/* ---------- Language switch ---------- */
+.mc-lang-switch{
+  display: flex; gap: 2px; flex: none;
+  border: 1px solid color-mix(in srgb, var(--ink, #222) 25%, transparent);
+  border-radius: 999px; padding: 2px;
+}
+.mc-lang-switch button{
+  all: unset; cursor: pointer;
+  font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 0.28rem 0.6rem; border-radius: 999px;
+  color: var(--ink, #222); opacity: 0.55;
+}
+.mc-lang-switch button[aria-pressed="true"]{ opacity: 1; background: var(--accent, #C97A3D); color: var(--paper, #fff); }
+
+.mc-gallery-trigger{
+  all: unset; cursor: pointer; color: inherit; font-size: 0.88rem; opacity: 0.9;
+}
+.mc-gallery-trigger:hover{ opacity: 1; text-decoration: underline; }
+
+/* ---------- Gallery overlay + lightbox ---------- */
+.mc-gallery-overlay{
+  position: fixed; inset: 0; z-index: 400;
+  background: color-mix(in srgb, var(--ink, #211C18) 96%, black 4%);
+  display: none; flex-direction: column; overflow-y: auto;
+}
+.mc-gallery-overlay.open{ display: flex; }
+.mc-gallery-head{
+  position: sticky; top: 0; z-index: 2;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.2rem 1.6rem;
+  background: color-mix(in srgb, var(--ink, #211C18) 92%, transparent);
+  backdrop-filter: blur(6px);
+}
+.mc-gallery-head h2{ color: var(--paper, #fff); font-size: 1.2rem; margin: 0; }
+.mc-gallery-close{
+  all: unset; cursor: pointer; color: var(--paper, #fff);
+  font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase;
+  border: 1px solid color-mix(in srgb, var(--paper, #fff) 40%, transparent);
+  border-radius: 999px; padding: 0.4rem 0.9rem;
+}
+.mc-gallery-grid{
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; padding: 1.6rem;
+}
+.mc-gallery-grid button{ all: unset; cursor: pointer; display: block; aspect-ratio: 4/3; overflow: hidden; border-radius: 4px; }
+.mc-gallery-grid img{ width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+.mc-gallery-grid button:hover img{ transform: scale(1.05); }
+@media (max-width: 900px){ .mc-gallery-grid{ grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 520px){ .mc-gallery-grid{ grid-template-columns: 1fr; } }
+
+.mc-lightbox{
+  position: fixed; inset: 0; z-index: 410; background: rgba(0,0,0,.92);
+  display: none; align-items: center; justify-content: center;
+}
+.mc-lightbox.open{ display: flex; }
+.mc-lightbox img{ max-width: 88vw; max-height: 82vh; object-fit: contain; }
+.mc-lightbox .lb-cap{ position: absolute; bottom: 1.5rem; left: 0; right: 0; text-align: center; color: #fff; font-size: 0.85rem; }
+.mc-lightbox button{ all: unset; cursor: pointer; position: absolute; color: #fff; font-size: 1.6rem; padding: 0.6rem 1rem; }
+.mc-lightbox .lb-close{ top: 1rem; right: 1rem; font-size: 1.2rem; }
+.mc-lightbox .lb-prev{ left: 1rem; top: 50%; transform: translateY(-50%); }
+.mc-lightbox .lb-next{ right: 1rem; top: 50%; transform: translateY(-50%); }
+
+/* ---------- Booking widget ---------- */
+.mc-booking{
+  display: grid; grid-template-columns: 1.1fr 1fr; gap: 2.5rem; align-items: start;
+  text-align: left;
+}
+@media (max-width: 900px){ .mc-booking{ grid-template-columns: 1fr; } }
+
+.mc-cal-head{ display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1rem; }
+.mc-cal-nav{ all: unset; cursor: pointer; width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; border: 1px solid color-mix(in srgb, var(--ink, #222) 25%, transparent); font-size: 1.1rem; }
+.mc-cal-nav:hover{ background: color-mix(in srgb, var(--accent, #C97A3D) 15%, transparent); }
+.mc-cal-year{ font-family: var(--font-display, serif); font-size: 1.2rem; min-width: 8ch; text-align: center; }
+.mc-cal-months{ display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+@media (max-width: 560px){ .mc-cal-months{ grid-template-columns: 1fr; } }
+.mc-cal-month-title{ font-family: var(--font-display, serif); text-transform: capitalize; font-size: 1rem; margin-bottom: 0.6rem; text-align: center; }
+.mc-cal-grid{ display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.mc-cal-dow{ text-align: center; font-size: 0.66rem; text-transform: uppercase; opacity: 0.5; padding-bottom: 4px; }
+.mc-cal-day{
+  all: unset; box-sizing: border-box; cursor: pointer; text-align: center;
+  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; border-radius: 6px;
+  background: color-mix(in srgb, var(--accent, #C97A3D) 8%, transparent);
+}
+.mc-cal-day:hover:not(:disabled){ background: color-mix(in srgb, var(--accent, #C97A3D) 30%, transparent); }
+.mc-cal-day:disabled{ cursor: not-allowed; opacity: 0.35; background: transparent; }
+.mc-cal-day.s-pending{ background: #E8B84B; opacity: 0.75; color: #3a2c00; }
+.mc-cal-day.s-blocked{ background: #C1441F; opacity: 0.55; color: #fff; }
+.mc-cal-day.s-past{ background: transparent; }
+.mc-cal-day.selected{ background: var(--accent, #C97A3D); color: #fff; font-weight: 700; }
+.mc-cal-day.in-range{ background: color-mix(in srgb, var(--accent, #C97A3D) 45%, transparent); }
+.mc-cal-legend{ display: flex; gap: 1.2rem; flex-wrap: wrap; margin-top: 1rem; font-size: 0.76rem; opacity: 0.8; }
+.mc-cal-legend .dot{ display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; }
+.mc-cal-legend .dot.available{ background: color-mix(in srgb, var(--accent, #C97A3D) 30%, transparent); }
+.mc-cal-legend .dot.pending{ background: #E8B84B; }
+.mc-cal-legend .dot.blocked{ background: #C1441F; }
+.mc-cal-selection{ margin-top: 1.2rem; font-size: 0.92rem; min-height: 1.4em; }
+
+.mc-booking-form{ display: flex; flex-direction: column; gap: 0.9rem; }
+.mc-field-row{ display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+.mc-booking-form label{ display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.8rem; opacity: 0.85; }
+.mc-booking-form input, .mc-booking-form textarea{
+  font: inherit; font-size: 0.95rem; padding: 0.6rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--ink, #222) 25%, transparent);
+  border-radius: 6px; background: var(--paper, #fff); color: var(--ink, #222);
+}
+.mc-booking-form input:focus, .mc-booking-form textarea:focus{ outline: 2px solid var(--accent, #C97A3D); outline-offset: 1px; }
+.mc-field-guests input{ max-width: 8ch; }
+.mc-hp{ position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.mc-form-note{ font-size: 0.76rem; opacity: 0.65; margin: 0; }
+.mc-form-error{ color: #a33; font-size: 0.85rem; margin: 0; }
+.mc-submit{
+  all: unset; cursor: pointer; text-align: center;
+  background: var(--accent, #C97A3D); color: #fff; font-weight: 600;
+  padding: 0.85rem 1.4rem; border-radius: 8px; margin-top: 0.4rem;
+}
+.mc-submit:hover{ filter: brightness(1.08); }
+.mc-submit:disabled{ opacity: 0.6; cursor: wait; }
+.mc-booking-success{ text-align: center; padding: 2.5rem 1rem; }
+.mc-booking-success h3{ font-family: var(--font-display, serif); font-size: 1.6rem; margin-bottom: 0.6rem; }
+
+/* ---------- Edit overlay ---------- */
+.mc-edit-toggle{
+  all: unset; cursor: pointer; position: fixed; top: 50%; right: 0; z-index: 500;
+  transform: translateY(-50%);
+  background: #16181c; color: #fff; font-family: -apple-system, sans-serif; font-size: 0.78rem;
+  font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+  padding: 0.9rem 0.55rem; writing-mode: vertical-rl; border-radius: 8px 0 0 8px;
+  box-shadow: -4px 0 16px rgb(0 0 0 / .25);
+}
+.mc-edit-toggle.is-active{ background: var(--accent, #C97A3D); }
+.mc-edit-toggle:hover{ padding-right: 0.8rem; }
+
+body.mc-edit-active [data-edit-id]{ cursor: pointer; }
+body.mc-edit-active [data-edit-id].mc-edit-hover{ outline: 2px dashed color-mix(in srgb, var(--accent, #C97A3D) 70%, transparent); outline-offset: 2px; }
+body.mc-edit-active [data-edit-id].mc-edit-selected{ outline: 2px solid var(--accent, #C97A3D); outline-offset: 2px; }
+
+.mc-resize-handle{
+  display: none; position: absolute; right: -6px; bottom: -6px; width: 14px; height: 14px;
+  background: var(--accent, #C97A3D); border: 2px solid #fff; border-radius: 50%; cursor: nwse-resize; z-index: 5;
+}
+.mc-edit-selected .mc-resize-handle{ display: block; }
+
+.mc-edit-login{
+  position: fixed; inset: 0; z-index: 600; background: rgb(0 0 0 / .5);
+  display: none; align-items: center; justify-content: center;
+}
+.mc-edit-login.open{ display: flex; }
+.mc-edit-login-card{
+  background: #fff; color: #222; border-radius: 12px; padding: 1.8rem; width: min(360px, 90vw);
+  font-family: -apple-system, sans-serif;
+}
+.mc-edit-login-card h3{ margin: 0 0 0.4rem; }
+.mc-edit-login-card p{ margin: 0 0 1rem; font-size: 0.88rem; color: #555; }
+.mc-edit-login-card input{ width: 100%; box-sizing: border-box; padding: 0.6rem 0.7rem; border: 1px solid #ccc; border-radius: 6px; font: inherit; margin-bottom: 0.6rem; }
+.mc-edit-login-error{ color: #a33; font-size: 0.82rem; margin: 0 0 0.6rem; }
+.mc-edit-login-actions{ display: flex; justify-content: flex-end; gap: 0.6rem; }
+.mc-btn-ghost{ all: unset; cursor: pointer; padding: 0.55rem 1rem; border-radius: 6px; font-size: 0.85rem; color: #555; }
+.mc-btn-ghost:hover{ background: #f0f0f0; }
+.mc-btn-solid{ all: unset; cursor: pointer; padding: 0.55rem 1.1rem; border-radius: 6px; font-size: 0.85rem; background: #16181c; color: #fff; }
+
+.mc-edit-panel{
+  position: fixed; top: 0; right: 0; height: 100vh; width: 320px; max-width: 90vw; z-index: 550;
+  background: #fff; color: #222; box-shadow: -8px 0 24px rgb(0 0 0 / .18);
+  padding: 1.4rem; overflow-y: auto; font-family: -apple-system, sans-serif;
+  transform: translateX(100%); transition: transform 0.25s ease;
+}
+.mc-edit-panel.open{ transform: translateX(0); }
+.mc-edit-panel-head{ display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1rem; }
+.mc-edit-id{ font-size: 0.68rem; color: #999; font-family: monospace; }
+.mc-edit-row{ display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.8rem; color: #555; margin-bottom: 0.9rem; }
+.mc-edit-row select, .mc-edit-row input[type="text"]{
+  font: inherit; padding: 0.5rem 0.6rem; border: 1px solid #ddd; border-radius: 6px;
+}
+.mc-edit-text{ font: inherit; padding: 0.5rem 0.6rem; border: 1px solid #ddd; border-radius: 6px; resize: vertical; }
+input[type="color"]{ width: 100%; height: 36px; border: 1px solid #ddd; border-radius: 6px; padding: 2px; }
+.mc-edit-panel-actions{ display: flex; justify-content: space-between; margin-top: 1.2rem; border-top: 1px solid #eee; padding-top: 1rem; }
+.mc-edit-hint{ font-size: 0.76rem; color: #999; line-height: 1.5; margin-top: 1rem; }
+.mc-edit-img-preview{ width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 6px; margin-bottom: 1rem; }
+.mc-edit-img-grid{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; max-height: 220px; overflow-y: auto; }
+.mc-edit-img-thumb{ all: unset; cursor: pointer; aspect-ratio: 1; overflow: hidden; border-radius: 4px; }
+.mc-edit-img-thumb img{ width: 100%; height: 100%; object-fit: cover; }
+.mc-edit-upload{ display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.8rem; color: #555; margin: 0.9rem 0; }
+
+.mc-edit-row select{ width: 100%; box-sizing: border-box; }
+.mc-edit-toolbar{ display: flex; gap: 6px; flex-wrap: wrap; }
+.mc-toolbar-btn{
+  all: unset; box-sizing: border-box; cursor: pointer; text-align: center;
+  min-width: 34px; padding: 0.4rem 0.55rem; border: 1px solid #ddd; border-radius: 6px;
+  font-size: 0.85rem; color: #333;
+}
+.mc-toolbar-btn:hover{ background: #f5f5f5; }
+.mc-toolbar-btn.active{ background: #16181c; color: #fff; border-color: #16181c; }
+.mc-slider-head{ display: flex; justify-content: space-between; align-items: baseline; }
+.mc-slider-value{ font-family: monospace; font-size: 0.72rem; color: #16181c; background: #f0f0f0; padding: 0.1rem 0.4rem; border-radius: 4px; }
+.mc-edit-row input[type="range"]{ width: 100%; accent-color: #16181c; }

@@ -1,0 +1,13 @@
+# Dépendances Node
+server/node_modules/
+
+# Secrets — ne JAMAIS committer
+server/.env
+
+# Données locales (réservations) — régénérées au démarrage
+server/data/store.json
+
+# Système
+.DS_Store
+Thumbs.db
+desktop.ini
