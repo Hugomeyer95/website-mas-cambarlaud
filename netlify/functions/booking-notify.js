@@ -47,9 +47,20 @@ exports.handler = async (event) => {
   const approveUrl = `${PUBLIC_URL}/.netlify/functions/decide?token=${approveToken}`;
   const rejectUrl = `${PUBLIC_URL}/.netlify/functions/decide?token=${rejectToken}`;
 
+  const missing = ['RESEND_API_KEY', 'FROM_EMAIL', 'OWNER_EMAIL', 'TOKEN_SECRET']
+    .filter((k) => !process.env[k]);
+  if (missing.length) {
+    console.error('Variables d\'environnement manquantes :', missing.join(', '));
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: `Configuration serveur incomplète : ${missing.join(', ')}` }),
+    };
+  }
+
   const resend = new Resend(process.env.RESEND_API_KEY);
   try {
-    await resend.emails.send({
+    // Le SDK Resend ne lève pas d'exception sur erreur API : il renvoie { data, error }.
+    const { error } = await resend.emails.send({
       from: process.env.FROM_EMAIL,
       to: process.env.OWNER_EMAIL,
       subject: `Nouvelle demande — ${firstName} ${lastName}, ${fmt(startDate)} → ${fmt(endDate)}`,
@@ -73,6 +84,13 @@ exports.handler = async (event) => {
         </div>
       `,
     });
+    if (error) {
+      console.error('Resend a refusé l\'envoi :', JSON.stringify(error));
+      return {
+        statusCode: 502,
+        body: JSON.stringify({ error: `Envoi refusé par Resend : ${error.message || error.name}` }),
+      };
+    }
   } catch (err) {
     console.error('Resend error:', err);
     return { statusCode: 500, body: JSON.stringify({ error: "Erreur lors de l'envoi de l'email." }) };

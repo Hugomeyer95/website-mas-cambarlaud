@@ -149,12 +149,18 @@ exports.handler = async (event) => {
   // ── POST : traitement ───────────────────────────────────────────────────────
   if (event.httpMethod === 'POST') {
     const resend = new Resend(process.env.RESEND_API_KEY);
+    // Le SDK Resend renvoie { data, error } au lieu de lever : sans ce contrôle
+    // un refus de l'API passerait pour un succès.
+    const check = (r) => {
+      if (r && r.error) throw new Error(`Resend : ${r.error.message || r.error.name}`);
+      return r;
+    };
 
     try {
       if (action === 'approve') {
         await updateBlockedDates({ start: startDate, end: endDate });
 
-        await resend.emails.send({
+        check(await resend.emails.send({
           from: process.env.FROM_EMAIL,
           to: email,
           subject: 'Votre réservation au Mas Cambarlaud est confirmée !',
@@ -172,7 +178,7 @@ exports.handler = async (event) => {
               <p>À bientôt en Provence !<br>L'équipe Mas Cambarlaud</p>
             </div>
           `,
-        });
+        }));
 
         return {
           statusCode: 200,
@@ -187,7 +193,7 @@ exports.handler = async (event) => {
         };
 
       } else {
-        await resend.emails.send({
+        check(await resend.emails.send({
           from: process.env.FROM_EMAIL,
           to: email,
           subject: 'Votre demande au Mas Cambarlaud',
@@ -202,7 +208,7 @@ exports.handler = async (event) => {
               <p><a href="${PUBLIC_URL}" style="color:#8c5e32">${PUBLIC_URL}</a></p>
             </div>
           `,
-        });
+        }));
 
         return {
           statusCode: 200,
