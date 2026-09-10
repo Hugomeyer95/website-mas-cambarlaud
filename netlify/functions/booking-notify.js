@@ -64,12 +64,19 @@ exports.handler = async (event) => {
     };
   }
 
+  // OWNER_EMAIL accepte plusieurs adresses séparées par des virgules, pour
+  // ajouter ou retirer un destinataire depuis Netlify sans toucher au code.
+  const owners = process.env.OWNER_EMAIL.split(',').map((a) => a.trim()).filter(Boolean);
+  if (!owners.length) {
+    return { statusCode: 500, body: JSON.stringify({ error: 'OWNER_EMAIL ne contient aucune adresse.' }) };
+  }
+
   const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     // Le SDK Resend ne lève pas d'exception sur erreur API : il renvoie { data, error }.
     const { error } = await resend.emails.send({
       from: process.env.FROM_EMAIL,
-      to: process.env.OWNER_EMAIL,
+      to: owners,
       subject: `Nouvelle demande — ${firstName} ${lastName}, ${fmt(startDate)} → ${fmt(endDate)}`,
       html: `
         <div style="font-family:sans-serif;max-width:560px;margin:0 auto">
