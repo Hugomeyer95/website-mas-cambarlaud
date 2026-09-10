@@ -19,9 +19,16 @@ function fmt(dateIso) {
   return `${Number(d)} ${months[Number(m) - 1]} ${y}`;
 }
 
+// Incrémenter à chaque modification : permet de vérifier quelle version est en ligne.
+const FN_VERSION = 2;
+
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: JSON.stringify({ error: 'Method Not Allowed' }) };
+    return {
+      statusCode: 405,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: 'Method Not Allowed', version: FN_VERSION }),
+    };
   }
 
   let booking;
