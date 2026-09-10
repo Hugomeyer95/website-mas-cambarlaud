@@ -1,11 +1,9 @@
 # Dépendances Node
-server/node_modules/
+node_modules/
 
 # Secrets — ne JAMAIS committer
+.env
 server/.env
-
-# Données locales (réservations) — régénérées au démarrage
-server/data/store.json
 
 # Système
 .DS_Store

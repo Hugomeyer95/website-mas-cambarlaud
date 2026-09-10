@@ -1,4 +1,4 @@
-// Thin fetch wrapper for the Mas Cambarlaud backend API.
+// Thin fetch wrapper for the Mas Cambarlaud API (Netlify Functions + static data).
 window.MC_API = (function () {
   async function request(path, options = {}) {
     const res = await fetch(`/api${path}`, {
@@ -17,8 +17,27 @@ window.MC_API = (function () {
 
   return {
     // Booking
-    getAvailability: (year) => request(`/availability?year=${encodeURIComponent(year)}`),
-    createBooking: (payload) => request('/booking', { method: 'POST', body: JSON.stringify(payload) }),
+    getAvailability: async (year) => {
+      const res = await fetch('/data/blocked-dates.json');
+      if (!res.ok) return { ranges: [] };
+      const all = await res.json();
+      const y = String(year);
+      const ranges = all
+        .filter((r) => r.start.startsWith(y) || r.end.startsWith(y))
+        .map((r) => ({ start_date: r.start, end_date: r.end }));
+      return { ranges };
+    },
+    createBooking: async (payload) => {
+      const res = await fetch('/.netlify/functions/booking-notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      let body = null;
+      try { body = await res.json(); } catch {}
+      if (!res.ok) throw new Error((body && body.error) || `Erreur ${res.status}`);
+      return body;
+    },
 
     // Admin auth
     login: (password) => request('/admin/login', { method: 'POST', body: JSON.stringify({ password }) }),
