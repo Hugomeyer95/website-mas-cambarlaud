@@ -292,20 +292,23 @@
     modalHost.innerHTML = successModalHtml();
     const modal = modalHost.firstElementChild;
     document.body.appendChild(modal);
-    let lastFocused = null;
-
     function openModal() {
-      lastFocused = document.activeElement;
       applyI18n(modal, locale());
       modal.hidden = false;
       document.body.style.overflow = 'hidden';
       modal.querySelector('.mc-modal-btn').focus();
     }
 
+    // Le modal ne s'ouvre qu'après un envoi réussi. À la fermeture on recharge
+    // donc la page : les coordonnées saisies disparaissent et la demande ne peut
+    // pas être renvoyée par inadvertance.
     function closeModal() {
       modal.hidden = true;
       document.body.style.overflow = '';
-      if (lastFocused && lastFocused.focus) lastFocused.focus();
+      // Vidé explicitement : certains navigateurs restaurent les champs saisis
+      // au rechargement, ce qui réafficherait les coordonnées du voyageur.
+      form.reset();
+      window.location.reload();
     }
 
     modal.addEventListener('click', (e) => { if (e.target.closest('[data-mc-close]')) closeModal(); });

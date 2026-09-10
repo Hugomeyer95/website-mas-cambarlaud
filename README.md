@@ -54,9 +54,9 @@ Ouvrez `.env` et remplissez au minimum :
   compte gratuit sur **https://resend.com**, vérifiez votre domaine d'envoi (ou utilisez
   temporairement `onboarding@resend.dev`, fourni par Resend pour démarrer sans domaine),
   puis générez une clé API dans leur tableau de bord.
-- `OWNER_EMAIL` — la ou les adresses qui reçoivent les demandes de réservation.
-  Plusieurs destinataires se déclarent séparés par des virgules, par exemple
-  `hugomeyer95@gmail.com,jph@chemint.fr`.
+- `OWNER_EMAIL` — la ou les adresses qui reçoivent les demandes de réservation
+  (actuellement `jph@chemint.fr`). Plusieurs destinataires se déclarent séparés
+  par des virgules, par exemple `jph@chemint.fr,autre@exemple.fr`.
 
 Tant que `RESEND_API_KEY` n'est pas renseigné, le serveur fonctionne quand même : les
 emails sont simplement affichés dans le terminal au lieu d'être envoyés (pratique pour
