@@ -59,7 +59,11 @@ async function updateBlockedDates(newRange) {
     method: 'PUT',
     headers,
     body: JSON.stringify({
-      message: `book: bloquer ${newRange.start} → ${newRange.end}`,
+      // [skip ci] : sans lui, chaque approbation déclencherait un déploiement de
+      // production à 15 crédits Netlify — soit un plafond de ~20 réservations par
+      // mois. Le rebuild est inutile ici : la fonction `availability` lit ce
+      // fichier en direct via l'API GitHub, le calendrier est donc à jour sans lui.
+      message: `book: bloquer ${newRange.start} → ${newRange.end} [skip ci]`,
       content: Buffer.from(JSON.stringify(current, null, 2) + '\n').toString('base64'),
       sha,
     }),

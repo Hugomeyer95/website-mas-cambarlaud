@@ -182,9 +182,10 @@
 
 /* Scène : olivier dans la garrigue */
 .mc-modal-art [class*="mc-"]{ transform-box: fill-box; }
-.mc-canopy{ transform-origin: 50% 100%; animation: mc-sway 7s ease-in-out infinite; }
-.mc-leaf{ transform-origin: 50% 100%; animation: mc-sway 5.5s ease-in-out infinite; }
-.mc-scrub{ transform-origin: 50% 100%; animation: mc-sway 6.5s ease-in-out infinite; }
+.mc-tree{ transform-origin: 50% 100%; animation: mc-wind-trunk 7s ease-in-out infinite; }
+.mc-canopy{ transform-origin: 50% 100%; animation: mc-wind 7s ease-in-out infinite; }
+.mc-leaf{ transform-origin: 50% 100%; animation: mc-wind-leaf 5.5s ease-in-out infinite; }
+.mc-scrub{ transform-origin: 50% 100%; animation: mc-wind-leaf 6.5s ease-in-out infinite; }
 .mc-lav{ transform-origin: 50% 100%; animation: mc-sway-wide 4.5s ease-in-out infinite; }
 .mc-grass{ transform-origin: 50% 100%; animation: mc-sway-wide 4s ease-in-out infinite; }
 .mc-sun{ transform-origin: 50% 50%; animation: mc-glow 6s ease-in-out infinite; }
@@ -192,22 +193,59 @@
 .mc-d3{ animation-delay: -2.6s; }
 .mc-d4{ animation-delay: -3.9s; }
 
-@keyframes mc-sway{
-  0%,100%{ transform: rotate(-1.1deg); }
-  50%{ transform: rotate(1.1deg); }
+/* Rafales irrégulières plutôt qu'un va-et-vient régulier : plus proche du vent réel. */
+@keyframes mc-wind{
+  0%{ transform: rotate(-2.6deg) translateX(-1.2px); }
+  18%{ transform: rotate(1.2deg) translateX(.4px); }
+  34%{ transform: rotate(3.6deg) translateX(1.6px); }
+  50%{ transform: rotate(.8deg) translateX(.2px); }
+  68%{ transform: rotate(3deg) translateX(1.3px); }
+  84%{ transform: rotate(-.6deg) translateX(-.4px); }
+  100%{ transform: rotate(-2.6deg) translateX(-1.2px); }
+}
+@keyframes mc-wind-leaf{
+  0%{ transform: rotate(-3deg); }
+  30%{ transform: rotate(2.2deg); }
+  55%{ transform: rotate(4deg); }
+  78%{ transform: rotate(.6deg); }
+  100%{ transform: rotate(-3deg); }
+}
+/* Le tronc ne fait que fléchir : l'essentiel du mouvement reste dans le feuillage. */
+@keyframes mc-wind-trunk{
+  0%,100%{ transform: rotate(-.7deg); }
+  34%{ transform: rotate(.9deg); }
+  68%{ transform: rotate(.3deg); }
 }
 @keyframes mc-sway-wide{
-  0%,100%{ transform: rotate(-3deg); }
-  50%{ transform: rotate(3deg); }
+  0%,100%{ transform: rotate(-6deg); }
+  45%{ transform: rotate(6deg); }
 }
 @keyframes mc-glow{
   0%,100%{ opacity: .8; transform: scale(1); }
   50%{ opacity: 1; transform: scale(1.06); }
 }
 
+/* Olives : une chute toutes les 1,4 s sur un cycle de 14 s, soit 10 olives
+   décalées qui tombent l'une après l'autre en continu. --x/--y portent la
+   distance jusqu'au panier, définie par olive dans le SVG. */
+.mc-olive{
+  opacity: 0;
+  animation: mc-olive-fall 14s linear infinite;
+  animation-delay: var(--d, 0s);
+}
+@keyframes mc-olive-fall{
+  0%,3%{ opacity: 0; transform: translate(0,0); }
+  /* accélération de la chute appliquée au segment 5% → 22% */
+  5%{ opacity: 1; transform: translate(0,0); animation-timing-function: cubic-bezier(.45,0,.75,.9); }
+  22%{ opacity: 1; transform: translate(var(--x,0), var(--y,0)); }
+  27%{ opacity: 0; }
+  100%{ opacity: 0; transform: translate(var(--x,0), var(--y,0)); }
+}
+
 @media (prefers-reduced-motion: reduce){
-  .mc-modal-backdrop, .mc-modal-card,
+  .mc-modal-backdrop, .mc-modal-card, .mc-tree,
   .mc-canopy, .mc-leaf, .mc-scrub, .mc-lav, .mc-grass, .mc-sun{ animation: none; }
+  .mc-olive{ animation: none; opacity: 1; }
 }
 
 /* ---------- Edit overlay — désactivé en production ---------- */

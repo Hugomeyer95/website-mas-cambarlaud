@@ -165,7 +165,7 @@
 
         <g class="mc-scrub"><ellipse cx="36" cy="138" rx="15" ry="9" fill="#8FA37F"/><ellipse cx="27" cy="141" rx="10" ry="6" fill="#7E9270"/></g>
         <g class="mc-scrub mc-d2"><ellipse cx="292" cy="144" rx="17" ry="10" fill="#8FA37F"/><ellipse cx="303" cy="147" rx="11" ry="6" fill="#7E9270"/></g>
-        <g class="mc-scrub mc-d3"><ellipse cx="212" cy="150" rx="13" ry="8" fill="#96A986"/></g>
+        <g class="mc-scrub mc-d3"><ellipse cx="222" cy="152" rx="10" ry="7" fill="#96A986"/></g>
 
         <g class="mc-lav"><path d="M74 152 L72 134" stroke="#8E9B7E" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="72" cy="131" rx="3" ry="6" fill="#A292B5"/></g>
         <g class="mc-lav mc-d2"><path d="M82 153 L83 137" stroke="#8E9B7E" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="83" cy="134" rx="2.6" ry="5.4" fill="#B0A0C1"/></g>
@@ -185,6 +185,36 @@
             <circle cx="176" cy="91" r="1.9" fill="#5C4A63"/>
             <circle cx="160" cy="78" r="2" fill="#5C4A63"/>
           </g>
+        </g>
+
+        <g>
+          <path d="M117 144 L135 144 L132 157 L120 157 Z" fill="#BE9260"/>
+          <path d="M118.4 148 H133.6 M119.4 152 H132.6" stroke="#9D7647" stroke-width=".9" fill="none"/>
+          <ellipse cx="126" cy="144" rx="9" ry="2.8" fill="#D2A874"/>
+          <ellipse cx="122" cy="143.4" rx="2.1" ry="1.7" fill="#4A3A52"/>
+          <ellipse cx="126.5" cy="143.8" rx="2.1" ry="1.7" fill="#5C4A63"/>
+          <ellipse cx="130.6" cy="143.3" rx="1.9" ry="1.6" fill="#4A3A52"/>
+        </g>
+        <g>
+          <path d="M185 146 L203 146 L200 159 L188 159 Z" fill="#BE9260"/>
+          <path d="M186.4 150 H201.6 M187.4 154 H200.6" stroke="#9D7647" stroke-width=".9" fill="none"/>
+          <ellipse cx="194" cy="146" rx="9" ry="2.8" fill="#D2A874"/>
+          <ellipse cx="190.2" cy="145.4" rx="2.1" ry="1.7" fill="#5C4A63"/>
+          <ellipse cx="194.8" cy="145.8" rx="2.1" ry="1.7" fill="#4A3A52"/>
+          <ellipse cx="198.4" cy="145.3" rx="1.9" ry="1.6" fill="#5C4A63"/>
+        </g>
+
+        <g class="mc-olives">
+          <ellipse class="mc-olive" style="--x:6px;--y:46px;--d:0s"     cx="120" cy="98"  rx="2.2" ry="2.8" fill="#4A3A52"/>
+          <ellipse class="mc-olive" style="--x:5px;--y:47px;--d:1.4s"   cx="189" cy="99"  rx="2.2" ry="2.8" fill="#5C4A63"/>
+          <ellipse class="mc-olive" style="--x:-6px;--y:44px;--d:2.8s"  cx="132" cy="100" rx="2.1" ry="2.7" fill="#5C4A63"/>
+          <ellipse class="mc-olive" style="--x:-4px;--y:45px;--d:4.2s"  cx="198" cy="101" rx="2.2" ry="2.8" fill="#4A3A52"/>
+          <ellipse class="mc-olive" style="--x:0px;--y:51px;--d:5.6s"   cx="126" cy="93"  rx="2" ry="2.6" fill="#5C4A63"/>
+          <ellipse class="mc-olive" style="--x:3px;--y:52px;--d:7s"     cx="191" cy="94"  rx="2.1" ry="2.7" fill="#4A3A52"/>
+          <ellipse class="mc-olive" style="--x:-11px;--y:48px;--d:8.4s" cx="137" cy="96"  rx="2.2" ry="2.8" fill="#4A3A52"/>
+          <ellipse class="mc-olive" style="--x:-8px;--y:49px;--d:9.8s"  cx="202" cy="97"  rx="2" ry="2.6" fill="#5C4A63"/>
+          <ellipse class="mc-olive" style="--x:4px;--y:41px;--d:11.2s"  cx="122" cy="103" rx="2.1" ry="2.7" fill="#5C4A63"/>
+          <ellipse class="mc-olive" style="--x:8px;--y:44px;--d:12.6s"  cx="186" cy="102" rx="2.2" ry="2.8" fill="#4A3A52"/>
         </g>
 
         <g class="mc-grass"><path d="M100 158 C99 150 97 146 94 142 M104 158 C105 151 106 147 109 143 M102 158 L102 147" stroke="#9AAA88" stroke-width="1.5" stroke-linecap="round" fill="none"/></g>
