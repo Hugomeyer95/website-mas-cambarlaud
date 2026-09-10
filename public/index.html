@@ -76,19 +76,48 @@
   .mc-gallery-trigger{ color: #fff; }
   .mc-lang-switch{ border-color: rgb(255 255 255 / .4); }
   .mc-lang-switch button{ color: #fff; }
+  body{ overflow-x: hidden; }
   .nav-toggle{ display: none; }
   @media (max-width: 900px){
     nav ul{ display: none; }
     header.cartouche{ padding: 0.5rem 0.6rem; }
+    /* Masquer lang switch et galerie du header — déplacés dans le menu mobile */
+    .cartouche-right .mc-lang-switch,
+    .cartouche-right .mc-gallery-trigger{ display: none; }
     nav ul.open{
       display: flex; flex-direction: column;
-      position: fixed; top: 4.2rem; left: 50%; transform: translateX(-50%);
+      position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%);
       background: rgb(20 14 10 / .92); border-radius: 18px; padding: 1rem 1.4rem; gap: 0.8rem; z-index: 300;
+      min-width: max-content;
     }
     .nav-toggle{
       display: inline-flex; background: none; border: 1px solid #fff; color:#fff;
       border-radius: 999px; padding: 0.35rem 0.8rem; font-size: 0.75rem; cursor: pointer;
     }
+    /* Séparateur + lang switch dans le menu mobile */
+    .nav-lang-item{
+      display: flex; justify-content: center; gap: 0.5rem;
+      padding-top: 0.5rem; margin-top: 0.2rem;
+      border-top: 1px solid rgb(255 255 255 / .18);
+    }
+    .nav-lang-item button{
+      all: unset; cursor: pointer;
+      font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em;
+      padding: 0.32rem 0.75rem; border-radius: 999px; color: #fff;
+      border: 1px solid rgb(255 255 255 / .38); opacity: 0.65;
+    }
+    .nav-lang-item button[aria-pressed="true"]{
+      opacity: 1; background: var(--gold); border-color: var(--gold);
+    }
+    /* Stat-row : forcer une seule ligne sur mobile */
+    .hero .stat-row{ gap: 0.7rem; flex-wrap: nowrap; align-items: flex-start; }
+    .hero .stat-row .stat strong{ font-size: 1.1rem; }
+    .hero .stat-row .stat span{ font-size: 0.68rem; white-space: nowrap; }
+    /* Booking panel : padding réduit sur mobile */
+    .booking-panel{ padding: 1.25rem 1rem; border-radius: 10px; }
+  }
+  @media (min-width: 901px){
+    .nav-lang-item{ display: none; }
   }
 
   /* ---------- Hero ---------- */
@@ -204,6 +233,10 @@
         <li><a href="#interieurs" data-edit-id="nav.interiors" data-en="Interiors">Intérieurs</a></li>
         <li><a href="#alentours" data-edit-id="nav.nearby" data-en="Nearby">Alentours</a></li>
         <li><a href="#booking" data-edit-id="nav.book" data-en="Book">Réserver</a></li>
+        <li class="nav-lang-item" data-lang-switch role="group" aria-label="Choisir la langue / Choose language">
+          <button type="button" data-lang="fr" aria-pressed="true">FR</button>
+          <button type="button" data-lang="en" aria-pressed="false">EN</button>
+        </li>
       </ul>
     </nav>
     <div class="cartouche-right">
@@ -396,7 +429,6 @@
 <script src="/shared/js/gallery-data.js"></script>
 <script src="/shared/js/gallery.js"></script>
 <script src="/shared/js/booking.js"></script>
-<script src="/shared/js/editor.js"></script>
 <script>
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
     const items = document.querySelectorAll('.reveal');

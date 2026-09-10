@@ -77,7 +77,10 @@
 .mc-cal-nav:hover{ background: color-mix(in srgb, var(--accent, #C97A3D) 15%, transparent); }
 .mc-cal-year{ font-family: var(--font-display, serif); font-size: 1.2rem; min-width: 8ch; text-align: center; }
 .mc-cal-months{ display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-@media (max-width: 560px){ .mc-cal-months{ grid-template-columns: 1fr; } }
+@media (max-width: 640px){ .mc-cal-months{ grid-template-columns: 1fr; } }
+@media (max-width: 480px){
+  .mc-field-row{ grid-template-columns: 1fr; }
+}
 .mc-cal-month-title{ font-family: var(--font-display, serif); text-transform: capitalize; font-size: 1rem; margin-bottom: 0.6rem; text-align: center; }
 .mc-cal-grid{ display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
 .mc-cal-dow{ text-align: center; font-size: 0.66rem; text-transform: uppercase; opacity: 0.5; padding-bottom: 4px; }
@@ -124,8 +127,9 @@
 .mc-booking-success{ text-align: center; padding: 2.5rem 1rem; }
 .mc-booking-success h3{ font-family: var(--font-display, serif); font-size: 1.6rem; margin-bottom: 0.6rem; }
 
-/* ---------- Edit overlay ---------- */
-.mc-edit-toggle{
+/* ---------- Edit overlay — désactivé en production ---------- */
+.mc-edit-toggle{ display: none !important; }
+.mc-edit-toggle-hidden{
   all: unset; cursor: pointer; position: fixed; top: 50%; right: 0; z-index: 500;
   transform: translateY(-50%);
   background: #16181c; color: #fff; font-family: -apple-system, sans-serif; font-size: 0.78rem;
