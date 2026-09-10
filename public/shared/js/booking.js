@@ -102,6 +102,98 @@
     `;
   }
 
+  // content-engine ne traduit que les éléments [data-edit-id] ; le widget est
+  // injecté après son initialisation, ses libellés data-fr/data-en resteraient
+  // donc en français. Ce helper les applique sur le sous-arbre du widget.
+  function applyI18n(root, locale) {
+    root.querySelectorAll('[data-fr][data-en]').forEach((el) => {
+      const txt = locale === 'en' ? el.dataset.en : el.dataset.fr;
+      if (txt && el.textContent !== txt) el.textContent = txt;
+    });
+    root.querySelectorAll('[data-ph-fr][data-ph-en]').forEach((el) => {
+      el.placeholder = locale === 'en' ? el.dataset.phEn : el.dataset.phFr;
+    });
+  }
+
+  function successModalHtml() {
+    return `
+      <div class="mc-modal" role="dialog" aria-modal="true" aria-labelledby="mc-modal-title" hidden>
+        <div class="mc-modal-backdrop" data-mc-close></div>
+        <div class="mc-modal-card" role="document">
+          <button type="button" class="mc-modal-close" data-mc-close aria-label="Fermer">&times;</button>
+          <div class="mc-modal-art" aria-hidden="true">${oliveSceneSvg()}</div>
+          <div class="mc-modal-body">
+            <h3 id="mc-modal-title" data-fr="Demande envoyée !" data-en="Request sent!">Demande envoyée !</h3>
+            <p data-fr="Merci — nous revenons vers vous très vite par email pour confirmer vos dates."
+               data-en="Thank you — we'll get back to you by email very soon to confirm your dates.">Merci — nous revenons vers vous très vite par email pour confirmer vos dates.</p>
+            <button type="button" class="mc-modal-btn" data-mc-close data-fr="Fermer" data-en="Close">Fermer</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Olivier dans la garrigue — feuillage et herbes animés par CSS.
+  function oliveSceneSvg() {
+    return `
+      <svg viewBox="0 0 320 180" role="img" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="mcSky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#FBF3E7"/><stop offset="100%" stop-color="#F7E0C4"/>
+          </linearGradient>
+          <radialGradient id="mcSun" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#F8DCAC" stop-opacity=".95"/>
+            <stop offset="100%" stop-color="#F2C894" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="mcGround" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#DDCDAA"/><stop offset="100%" stop-color="#CBB78F"/>
+          </linearGradient>
+        </defs>
+
+        <rect width="320" height="180" fill="url(#mcSky)"/>
+        <circle class="mc-sun" cx="252" cy="46" r="40" fill="url(#mcSun)"/>
+        <circle cx="252" cy="46" r="11" fill="#F6D9A8" opacity=".75"/>
+
+        <path d="M0 118 C46 100 84 112 126 106 C170 100 212 86 260 96 C286 101 305 108 320 112 L320 180 L0 180 Z" fill="#C3C8B4" opacity=".85"/>
+        <path d="M0 132 C54 118 96 130 148 124 C204 118 250 108 320 122 L320 180 L0 180 Z" fill="#ADB79C"/>
+        <path d="M0 141 C60 133 120 146 186 140 C244 135 282 140 320 137 L320 180 L0 180 Z" fill="url(#mcGround)"/>
+
+        <ellipse cx="44" cy="146" rx="19" ry="7" fill="#E2D8C6"/>
+        <ellipse cx="52" cy="143" rx="10" ry="5" fill="#D0C4AE"/>
+        <ellipse cx="272" cy="152" rx="24" ry="8" fill="#E2D8C6"/>
+        <ellipse cx="262" cy="149" rx="12" ry="5" fill="#D0C4AE"/>
+
+        <g class="mc-scrub"><ellipse cx="36" cy="138" rx="15" ry="9" fill="#8FA37F"/><ellipse cx="27" cy="141" rx="10" ry="6" fill="#7E9270"/></g>
+        <g class="mc-scrub mc-d2"><ellipse cx="292" cy="144" rx="17" ry="10" fill="#8FA37F"/><ellipse cx="303" cy="147" rx="11" ry="6" fill="#7E9270"/></g>
+        <g class="mc-scrub mc-d3"><ellipse cx="212" cy="150" rx="13" ry="8" fill="#96A986"/></g>
+
+        <g class="mc-lav"><path d="M74 152 L72 134" stroke="#8E9B7E" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="72" cy="131" rx="3" ry="6" fill="#A292B5"/></g>
+        <g class="mc-lav mc-d2"><path d="M82 153 L83 137" stroke="#8E9B7E" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="83" cy="134" rx="2.6" ry="5.4" fill="#B0A0C1"/></g>
+        <g class="mc-lav mc-d3"><path d="M240 154 L242 139" stroke="#8E9B7E" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="242" cy="136" rx="2.8" ry="5.6" fill="#A292B5"/></g>
+
+        <g class="mc-tree">
+          <path d="M146 150 C148 141 152 133 151 124 C150 115 147 108 151 101 L163 100 C161 107 160 114 163 122 C166 131 171 141 174 150 Z" fill="#7C6B54"/>
+          <path d="M151 124 C146 117 139 112 132 109 M162 122 C168 114 176 110 184 108 M157 118 C157 110 157 104 158 98" stroke="#6A5A46" stroke-width="3.2" stroke-linecap="round" fill="none"/>
+          <g class="mc-canopy">
+            <ellipse class="mc-leaf" cx="128" cy="99" rx="22" ry="15" fill="#7A8F6C"/>
+            <ellipse class="mc-leaf mc-d2" cx="188" cy="97" rx="23" ry="15" fill="#7A8F6C"/>
+            <ellipse class="mc-leaf mc-d3" cx="158" cy="84" rx="27" ry="18" fill="#8CA07E"/>
+            <ellipse class="mc-leaf mc-d2" cx="137" cy="87" rx="19" ry="13" fill="#9FB292"/>
+            <ellipse class="mc-leaf mc-d4" cx="180" cy="86" rx="18" ry="12" fill="#9FB292"/>
+            <ellipse class="mc-leaf mc-d3" cx="158" cy="99" rx="21" ry="13" fill="#6E8461"/>
+            <circle cx="142" cy="93" r="2.1" fill="#5C4A63"/>
+            <circle cx="176" cy="91" r="1.9" fill="#5C4A63"/>
+            <circle cx="160" cy="78" r="2" fill="#5C4A63"/>
+          </g>
+        </g>
+
+        <g class="mc-grass"><path d="M100 158 C99 150 97 146 94 142 M104 158 C105 151 106 147 109 143 M102 158 L102 147" stroke="#9AAA88" stroke-width="1.5" stroke-linecap="round" fill="none"/></g>
+        <g class="mc-grass mc-d2"><path d="M196 160 C195 152 193 148 190 144 M200 160 C201 153 203 149 206 145" stroke="#9AAA88" stroke-width="1.5" stroke-linecap="round" fill="none"/></g>
+        <g class="mc-grass mc-d3"><path d="M58 162 C57 155 55 151 52 148 M62 162 C63 156 65 152 68 149" stroke="#A5B394" stroke-width="1.5" stroke-linecap="round" fill="none"/></g>
+      </svg>
+    `;
+  }
+
   function renderMonth(year, month, monthLabel, statusMap, selection, locale) {
     const wrap = document.createElement('div');
     wrap.className = 'mc-cal-month';
@@ -165,6 +257,30 @@
 
     function locale() { return (window.MC_CONTENT && window.MC_CONTENT.getLocale()) || 'fr'; }
 
+    // Modal de confirmation, monté sur <body> pour échapper au contexte du panneau.
+    const modalHost = document.createElement('div');
+    modalHost.innerHTML = successModalHtml();
+    const modal = modalHost.firstElementChild;
+    document.body.appendChild(modal);
+    let lastFocused = null;
+
+    function openModal() {
+      lastFocused = document.activeElement;
+      applyI18n(modal, locale());
+      modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+      modal.querySelector('.mc-modal-btn').focus();
+    }
+
+    function closeModal() {
+      modal.hidden = true;
+      document.body.style.overflow = '';
+      if (lastFocused && lastFocused.focus) lastFocused.focus();
+    }
+
+    modal.addEventListener('click', (e) => { if (e.target.closest('[data-mc-close]')) closeModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
+
     function renderSelectionText() {
       const l = locale();
       if (!selection.start) {
@@ -189,6 +305,8 @@
 
     function render() {
       const l = locale();
+      applyI18n(mount, l);
+      applyI18n(modal, l);
       const tpl = yearEl.dataset[l === 'en' ? 'enTpl' : 'frTpl'];
       yearEl.textContent = tpl.replace('{y}', year);
       monthsEl.innerHTML = '';
@@ -274,6 +392,7 @@
         await MC_API.createBooking(payload);
         form.hidden = true;
         successEl.hidden = false;
+        openModal();
         selection.start = null; selection.end = null;
         await refreshAvailability();
       } catch (err) {
