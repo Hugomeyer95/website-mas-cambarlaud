@@ -187,7 +187,7 @@ exports.handler = async (event) => {
             <h2>Réservation approuvée ✓</h2>
             <p>Un email de confirmation a été envoyé à <strong>${firstName} ${lastName}</strong> (${email}).</p>
             <p>Les dates <strong>${fmt(startDate)} → ${fmt(endDate)}</strong> sont maintenant bloquées dans le calendrier.</p>
-            <p style="font-size:13px;color:#aaa">Le calendrier du site sera mis à jour dans environ 2 minutes (rebuild Netlify).</p>
+            <p style="font-size:13px;color:#aaa">La mise à jour est immédiate sur le site — aucun délai d'attente.</p>
             <a class="back" href="${PUBLIC_URL}">← Retour au site</a>
           `),
         };

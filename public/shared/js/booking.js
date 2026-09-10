@@ -404,6 +404,13 @@
     });
 
     if (window.MC_CONTENT) window.MC_CONTENT.onLocaleChange(render);
+
+    // Le propriétaire approuve souvent depuis un autre onglet : en revenant sur
+    // celui du site, on recharge les disponibilités sans rafraîchissement manuel.
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) refreshAvailability();
+    });
+
     refreshAvailability();
   }
 

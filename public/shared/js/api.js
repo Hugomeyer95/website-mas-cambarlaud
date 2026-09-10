@@ -18,14 +18,24 @@ window.MC_API = (function () {
   return {
     // Booking
     getAvailability: async (year) => {
-      const res = await fetch('/data/blocked-dates.json');
-      if (!res.ok) return { ranges: [] };
-      const all = await res.json();
       const y = String(year);
-      const ranges = all
+      const toRanges = (all) => all
         .filter((r) => r.start.startsWith(y) || r.end.startsWith(y))
         .map((r) => ({ start_date: r.start, end_date: r.end }));
-      return { ranges };
+
+      // Source live : reflète une approbation sans attendre le rebuild Netlify.
+      try {
+        const live = await fetch('/.netlify/functions/availability', { cache: 'no-store' });
+        if (live.ok) return { ranges: toRanges(await live.json()) };
+      } catch { /* repli ci-dessous */ }
+
+      // Repli sur le fichier statique si la fonction est indisponible.
+      try {
+        const res = await fetch('/data/blocked-dates.json', { cache: 'no-store' });
+        if (res.ok) return { ranges: toRanges(await res.json()) };
+      } catch { /* calendrier vide */ }
+
+      return { ranges: [] };
     },
     createBooking: async (payload) => {
       const res = await fetch('/.netlify/functions/booking-notify', {
