@@ -80,16 +80,21 @@
   .nav-toggle{ display: none; }
   @media (max-width: 900px){
     nav ul{ display: none; }
-    header.cartouche{ padding: 0.5rem 0.6rem; }
-    /* Masquer lang switch et galerie du header — déplacés dans le menu mobile */
-    .cartouche-right .mc-lang-switch,
-    .cartouche-right .mc-gallery-trigger{ display: none; }
+    header.cartouche{ padding: 0.45rem 1.1rem; }
+    /* Le lang switch et la galerie passent dans le menu déroulant :
+       on retire le conteneur du flux pour ne pas laisser de gap fantôme à droite. */
+    .cartouche-right{ display: none; }
+    /* nav sorti du flux flex : sinon son gap décale le wordmark et le bouton Menu.
+       inset:0 le calque sur le header, ce qui garde le positionnement du menu correct. */
+    nav{ position: absolute; inset: 0; pointer-events: none; }
+    .nav-inner{ gap: 0.85rem; justify-content: center; }
     nav ul.open{
-      display: flex; flex-direction: column;
+      display: flex; flex-direction: column; pointer-events: auto;
       position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%);
       background: rgb(20 14 10 / .92); border-radius: 18px; padding: 1rem 1.4rem; gap: 0.8rem; z-index: 300;
       min-width: max-content;
     }
+    .wordmark{ font-size: 1.3rem; }
     .nav-toggle{
       display: inline-flex; background: none; border: 1px solid #fff; color:#fff;
       border-radius: 999px; padding: 0.35rem 0.8rem; font-size: 0.75rem; cursor: pointer;
@@ -109,12 +114,6 @@
     .nav-lang-item button[aria-pressed="true"]{
       opacity: 1; background: var(--gold); border-color: var(--gold);
     }
-    /* Stat-row : forcer une seule ligne sur mobile */
-    .hero .stat-row{ gap: 0.7rem; flex-wrap: nowrap; align-items: flex-start; }
-    .hero .stat-row .stat strong{ font-size: 1.1rem; }
-    .hero .stat-row .stat span{ font-size: 0.68rem; white-space: nowrap; }
-    /* Booking panel : padding réduit sur mobile */
-    .booking-panel{ padding: 1.25rem 1rem; border-radius: 10px; }
   }
   @media (min-width: 901px){
     .nav-lang-item{ display: none; }
@@ -218,6 +217,21 @@
   }
 
   footer{ text-align:center; padding-block: var(--space-3); font-size: 0.75rem; color: color-mix(in srgb, var(--ink) 60%, transparent); }
+
+  /* ---------- Overrides mobile ----------
+     Placés en fin de feuille : à spécificité égale, la dernière règle gagne. */
+  @media (max-width: 900px){
+    /* Les 4 stats tiennent sur une seule ligne */
+    .hero .stat-row{ gap: 0.7rem; flex-wrap: nowrap; align-items: flex-start; }
+    .hero .stat-row .stat strong{ font-size: 1.1rem; }
+    .hero .stat-row .stat span{ font-size: 0.68rem; white-space: nowrap; }
+    /* var(--space-4) vaut ~48px ici : bien trop pour un écran de 375px */
+    .booking-panel{ padding: 1.25rem 1rem; border-radius: 12px; }
+  }
+  @media (max-width: 560px){
+    .wrap{ padding-inline: 1.1rem; }
+    .booking-panel{ padding: 1.1rem 0.85rem; }
+  }
 </style>
 </head>
 <body>

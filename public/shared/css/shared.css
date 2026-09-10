@@ -66,23 +66,24 @@
 .mc-lightbox .lb-next{ right: 1rem; top: 50%; transform: translateY(-50%); }
 
 /* ---------- Booking widget ---------- */
+/* minmax(0,…) partout : un `1fr` nu vaut minmax(auto,1fr), et le `auto` prend la
+   largeur min-content des <input> (size=20 ≈ 199px), ce qui force la grille à
+   déborder sur mobile au lieu de se réduire. */
 .mc-booking{
-  display: grid; grid-template-columns: 1.1fr 1fr; gap: 2.5rem; align-items: start;
+  display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 2.5rem; align-items: start;
   text-align: left;
 }
-@media (max-width: 900px){ .mc-booking{ grid-template-columns: 1fr; } }
+@media (max-width: 900px){ .mc-booking{ grid-template-columns: minmax(0, 1fr); } }
 
+.mc-booking-cal{ min-width: 0; }
 .mc-cal-head{ display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1rem; }
 .mc-cal-nav{ all: unset; cursor: pointer; width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; border: 1px solid color-mix(in srgb, var(--ink, #222) 25%, transparent); font-size: 1.1rem; }
 .mc-cal-nav:hover{ background: color-mix(in srgb, var(--accent, #C97A3D) 15%, transparent); }
 .mc-cal-year{ font-family: var(--font-display, serif); font-size: 1.2rem; min-width: 8ch; text-align: center; }
-.mc-cal-months{ display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-@media (max-width: 640px){ .mc-cal-months{ grid-template-columns: 1fr; } }
-@media (max-width: 480px){
-  .mc-field-row{ grid-template-columns: 1fr; }
-}
+.mc-cal-months{ display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.5rem; }
+@media (max-width: 640px){ .mc-cal-months{ grid-template-columns: minmax(0, 1fr); } }
 .mc-cal-month-title{ font-family: var(--font-display, serif); text-transform: capitalize; font-size: 1rem; margin-bottom: 0.6rem; text-align: center; }
-.mc-cal-grid{ display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.mc-cal-grid{ display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
 .mc-cal-dow{ text-align: center; font-size: 0.66rem; text-transform: uppercase; opacity: 0.5; padding-bottom: 4px; }
 .mc-cal-day{
   all: unset; box-sizing: border-box; cursor: pointer; text-align: center;
@@ -104,13 +105,15 @@
 .mc-cal-legend .dot.blocked{ background: #C1441F; }
 .mc-cal-selection{ margin-top: 1.2rem; font-size: 0.92rem; min-height: 1.4em; }
 
-.mc-booking-form{ display: flex; flex-direction: column; gap: 0.9rem; }
-.mc-field-row{ display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
-.mc-booking-form label{ display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.8rem; opacity: 0.85; }
+.mc-booking-form{ display: flex; flex-direction: column; gap: 0.9rem; min-width: 0; }
+.mc-field-row{ display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.8rem; }
+@media (max-width: 480px){ .mc-field-row{ grid-template-columns: minmax(0, 1fr); } }
+.mc-booking-form label{ display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.8rem; opacity: 0.85; min-width: 0; }
 .mc-booking-form input, .mc-booking-form textarea{
   font: inherit; font-size: 0.95rem; padding: 0.6rem 0.7rem;
   border: 1px solid color-mix(in srgb, var(--ink, #222) 25%, transparent);
   border-radius: 6px; background: var(--paper, #fff); color: var(--ink, #222);
+  width: 100%; min-width: 0; max-width: 100%;
 }
 .mc-booking-form input:focus, .mc-booking-form textarea:focus{ outline: 2px solid var(--accent, #C97A3D); outline-offset: 1px; }
 .mc-field-guests input{ max-width: 8ch; }
