@@ -19,8 +19,19 @@ function fmt(dateIso) {
   return `${Number(d)} ${months[Number(m) - 1]} ${y}`;
 }
 
+// Les saisies du voyageur finissent dans du HTML : sans échappement, un nom ou un
+// message contenant des balises serait interprété par le client mail de l'hôte.
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => (
+  { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+));
+
+// La location se fait du samedi au samedi.
+const isSaturday = (s) => typeof s === 'string'
+  && /^\d{4}-\d{2}-\d{2}$/.test(s)
+  && new Date(`${s}T00:00:00Z`).getUTCDay() === 6;
+
 // Incrémenter à chaque modification : permet de vérifier quelle version est en ligne.
-const FN_VERSION = 2;
+const FN_VERSION = 3;
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -46,6 +57,13 @@ exports.handler = async (event) => {
   const { firstName, lastName, email, startDate, endDate, guests, message, phone } = booking;
   if (!firstName || !lastName || !email || !startDate || !endDate) {
     return { statusCode: 400, body: JSON.stringify({ error: 'Champs requis manquants.' }) };
+  }
+
+  if (!isSaturday(startDate) || !isSaturday(endDate) || endDate <= startDate) {
+    const error = booking.locale === 'en'
+      ? 'Stays run from Saturday to Saturday.'
+      : 'Les séjours se font du samedi au samedi.';
+    return { statusCode: 400, body: JSON.stringify({ error }) };
   }
 
   const PUBLIC_URL = (process.env.PUBLIC_URL || 'https://chemint.fr').replace(/\/$/, '');
@@ -82,13 +100,13 @@ exports.handler = async (event) => {
         <div style="font-family:sans-serif;max-width:560px;margin:0 auto">
           <h2 style="color:#3a3a3a">Nouvelle demande de réservation</h2>
           <table style="border-collapse:collapse;width:100%">
-            <tr><td style="padding:6px 0;color:#666;width:120px">Nom</td><td style="padding:6px 0"><strong>${firstName} ${lastName}</strong></td></tr>
-            <tr><td style="padding:6px 0;color:#666">Email</td><td style="padding:6px 0">${email}</td></tr>
-            <tr><td style="padding:6px 0;color:#666">Téléphone</td><td style="padding:6px 0">${phone || '—'}</td></tr>
+            <tr><td style="padding:6px 0;color:#666;width:120px">Nom</td><td style="padding:6px 0"><strong>${esc(firstName)} ${esc(lastName)}</strong></td></tr>
+            <tr><td style="padding:6px 0;color:#666">Email</td><td style="padding:6px 0">${esc(email)}</td></tr>
+            <tr><td style="padding:6px 0;color:#666">Téléphone</td><td style="padding:6px 0">${esc(phone || '—')}</td></tr>
             <tr><td style="padding:6px 0;color:#666">Arrivée</td><td style="padding:6px 0">${fmt(startDate)}</td></tr>
             <tr><td style="padding:6px 0;color:#666">Départ</td><td style="padding:6px 0">${fmt(endDate)}</td></tr>
-            <tr><td style="padding:6px 0;color:#666">Voyageurs</td><td style="padding:6px 0">${guests}</td></tr>
-            <tr><td style="padding:6px 0;color:#666;vertical-align:top">Message</td><td style="padding:6px 0">${message || '—'}</td></tr>
+            <tr><td style="padding:6px 0;color:#666">Voyageurs</td><td style="padding:6px 0">${esc(guests)}</td></tr>
+            <tr><td style="padding:6px 0;color:#666;vertical-align:top">Message</td><td style="padding:6px 0">${esc(message || '—')}</td></tr>
           </table>
           <div style="margin-top:32px">
             <a href="${approveUrl}" style="display:inline-block;background:#2a7a2a;color:#fff;padding:14px 28px;border-radius:5px;text-decoration:none;font-size:15px;margin-right:12px">✓ Approuver</a>

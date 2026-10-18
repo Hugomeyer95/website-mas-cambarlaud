@@ -52,6 +52,18 @@ async function updateBlockedDates(newRange) {
   const { content, sha } = await getRes.json();
 
   const current = JSON.parse(Buffer.from(content, 'base64').toString('utf-8'));
+
+  // Un séjour occupe les nuits [arrivée, départ[ : deux séjours peuvent se
+  // toucher sur un samedi mais pas se chevaucher. Cela bloque aussi une seconde
+  // approbation de la même demande (double clic, rechargement de la page).
+  const clash = current.find((r) => newRange.start < r.end && r.start < newRange.end);
+  if (clash) {
+    const err = new Error('Ces nuits chevauchent un séjour déjà confirmé.');
+    err.code = 'OVERLAP';
+    err.clash = clash;
+    throw err;
+  }
+
   current.push(newRange);
   current.sort((a, b) => a.start.localeCompare(b.start));
 
@@ -79,6 +91,13 @@ function fmt(dateIso) {
   const months = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
   return `${Number(d)} ${months[Number(m) - 1]} ${y}`;
 }
+
+// Les saisies du voyageur sont insérées dans des pages et emails HTML : sans
+// échappement, une balise dans un nom ou un message s'exécuterait dans le
+// navigateur de l'hôte, sur le domaine du site.
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => (
+  { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+));
 
 function page(title, body, color = '#2a7a2a') {
   return `<!DOCTYPE html>
@@ -134,12 +153,12 @@ exports.handler = async (event) => {
     const body = `
       <h2>Confirmer la décision</h2>
       <table>
-        <tr><td>Nom</td><td><strong>${firstName} ${lastName}</strong></td></tr>
-        <tr><td>Email</td><td>${email}</td></tr>
+        <tr><td>Nom</td><td><strong>${esc(firstName)} ${esc(lastName)}</strong></td></tr>
+        <tr><td>Email</td><td>${esc(email)}</td></tr>
         <tr><td>Arrivée</td><td>${fmt(startDate)}</td></tr>
         <tr><td>Départ</td><td>${fmt(endDate)}</td></tr>
-        <tr><td>Voyageurs</td><td>${guests}</td></tr>
-        ${message ? `<tr><td>Message</td><td>${message}</td></tr>` : ''}
+        <tr><td>Voyageurs</td><td>${esc(guests)}</td></tr>
+        ${message ? `<tr><td>Message</td><td>${esc(message)}</td></tr>` : ''}
       </table>
       <form method="POST" action="/.netlify/functions/decide">
         <input type="hidden" name="token" value="${token.replace(/"/g, '&quot;')}">
@@ -171,12 +190,12 @@ exports.handler = async (event) => {
           html: `
             <div style="font-family:sans-serif;max-width:560px;margin:0 auto">
               <h2 style="color:#2a7a2a">Réservation confirmée ✓</h2>
-              <p>Bonjour ${firstName},</p>
+              <p>Bonjour ${esc(firstName)},</p>
               <p>Nous avons le plaisir de confirmer votre séjour au <strong>Mas Cambarlaud</strong> :</p>
               <table style="border-collapse:collapse;margin:16px 0">
                 <tr><td style="padding:5px 16px 5px 0;color:#666">Arrivée</td><td><strong>${fmt(startDate)}</strong></td></tr>
                 <tr><td style="padding:5px 16px 5px 0;color:#666">Départ</td><td><strong>${fmt(endDate)}</strong></td></tr>
-                <tr><td style="padding:5px 16px 5px 0;color:#666">Voyageurs</td><td>${guests}</td></tr>
+                <tr><td style="padding:5px 16px 5px 0;color:#666">Voyageurs</td><td>${esc(guests)}</td></tr>
               </table>
               <p>Nous vous contacterons très prochainement avec toutes les informations pratiques pour votre séjour.</p>
               <p>À bientôt en Provence !<br>L'équipe Mas Cambarlaud</p>
@@ -189,7 +208,7 @@ exports.handler = async (event) => {
           headers: { 'Content-Type': 'text/html' },
           body: page('Approuvé', `
             <h2>Réservation approuvée ✓</h2>
-            <p>Un email de confirmation a été envoyé à <strong>${firstName} ${lastName}</strong> (${email}).</p>
+            <p>Un email de confirmation a été envoyé à <strong>${esc(firstName)} ${esc(lastName)}</strong> (${esc(email)}).</p>
             <p>Les dates <strong>${fmt(startDate)} → ${fmt(endDate)}</strong> sont maintenant bloquées dans le calendrier.</p>
             <p style="font-size:13px;color:#aaa">La mise à jour est immédiate sur le site — aucun délai d'attente.</p>
             <a class="back" href="${PUBLIC_URL}">← Retour au site</a>
@@ -204,7 +223,7 @@ exports.handler = async (event) => {
           html: `
             <div style="font-family:sans-serif;max-width:560px;margin:0 auto">
               <h2 style="color:#3a3a3a">Votre demande de séjour</h2>
-              <p>Bonjour ${firstName},</p>
+              <p>Bonjour ${esc(firstName)},</p>
               <p>Merci de l'intérêt que vous portez au <strong>Mas Cambarlaud</strong>.</p>
               <p>Nous sommes malheureusement dans l'impossibilité de donner suite à votre demande pour les dates du ${fmt(startDate)} au ${fmt(endDate)}.</p>
               <p>N'hésitez pas à consulter nos disponibilités pour d'autres dates — nous serons ravis de vous accueillir.</p>
@@ -219,17 +238,29 @@ exports.handler = async (event) => {
           headers: { 'Content-Type': 'text/html' },
           body: page('Refusé', `
             <h2 style="color:#555">Demande refusée</h2>
-            <p>Un email a été envoyé à <strong>${firstName} ${lastName}</strong> (${email}) pour l'informer.</p>
+            <p>Un email a été envoyé à <strong>${esc(firstName)} ${esc(lastName)}</strong> (${esc(email)}) pour l'informer.</p>
             <a class="back" href="${PUBLIC_URL}">← Retour au site</a>
           `, '#555'),
         };
       }
     } catch (err) {
+      if (err.code === 'OVERLAP') {
+        return {
+          statusCode: 409,
+          headers: { 'Content-Type': 'text/html' },
+          body: page('Dates déjà prises', `
+            <h2>Dates déjà prises</h2>
+            <p>Ces nuits chevauchent un séjour déjà confirmé (du ${fmt(err.clash.start)} au ${fmt(err.clash.end)}), ou cette demande a déjà été approuvée.</p>
+            <p>Rien n'a été modifié et aucun email n'a été envoyé.</p>
+            <a class="back" href="${PUBLIC_URL}">← Retour au site</a>
+          `, '#c0392b'),
+        };
+      }
       console.error('decide POST error:', err);
       return {
         statusCode: 500,
         headers: { 'Content-Type': 'text/html' },
-        body: page('Erreur', `<h2>Erreur serveur</h2><p>${err.message}</p><a class="back" href="${PUBLIC_URL}">← Retour</a>`, '#c0392b'),
+        body: page('Erreur', `<h2>Erreur serveur</h2><p>${esc(err.message)}</p><a class="back" href="${PUBLIC_URL}">← Retour</a>`, '#c0392b'),
       };
     }
   }

@@ -87,15 +87,38 @@
 .mc-cal-dow{ text-align: center; font-size: 0.66rem; text-transform: uppercase; opacity: 0.5; padding-bottom: 4px; }
 .mc-cal-day{
   all: unset; box-sizing: border-box; cursor: pointer; text-align: center;
-  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-  font-size: 0.8rem; border-radius: 6px;
+  aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  line-height: 1.15; font-size: 0.8rem; border-radius: 6px;
   background: color-mix(in srgb, var(--accent, #C97A3D) 8%, transparent);
 }
-.mc-cal-day:hover:not(:disabled){ background: color-mix(in srgb, var(--accent, #C97A3D) 30%, transparent); }
+.mc-cal-day .p{ font-size: 0.52rem; opacity: 0.7; letter-spacing: -0.01em; }
 .mc-cal-day:disabled{ cursor: not-allowed; opacity: 0.35; background: transparent; }
+
+/* Seuls les samedis sont réservables : ils ressortent, les autres jours restent
+   lisibles (prix visible) mais sans apparence cliquable. */
+.mc-cal-day.is-sat{ font-weight: 700; }
+.mc-cal-day.is-sat.s-available:not(.selected):not(.in-range){
+  background: color-mix(in srgb, var(--accent, #C97A3D) 20%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent, #C97A3D) 45%, transparent);
+}
+.mc-cal-day.not-sat.s-available:disabled{ cursor: default; opacity: 1; }
+
 .mc-cal-day.s-pending{ background: #E8B84B; opacity: 0.75; color: #3a2c00; }
 .mc-cal-day.s-blocked{ background: #C1441F; opacity: 0.55; color: #fff; }
 .mc-cal-day.s-past{ background: transparent; }
+
+/* Samedi partagé : une moitié occupée par un autre séjour, l'autre libre.
+   s-out : le séjour précédent part le matin, on peut arriver l'après-midi.
+   s-in  : un séjour arrive l'après-midi, on peut partir le matin. */
+.mc-cal-day.s-out, .mc-cal-day.s-in{ opacity: 1; color: var(--ink, #222); }
+.mc-cal-day.s-out{
+  background: linear-gradient(135deg, rgb(193 68 31 / .55) 0 50%, color-mix(in srgb, var(--accent, #C97A3D) 22%, transparent) 50% 100%);
+}
+.mc-cal-day.s-in{
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent, #C97A3D) 22%, transparent) 0 50%, rgb(193 68 31 / .55) 50% 100%);
+}
+
+.mc-cal-day:hover:not(:disabled):not(.selected){ background: color-mix(in srgb, var(--accent, #C97A3D) 30%, transparent); }
 .mc-cal-day.selected{ background: var(--accent, #C97A3D); color: #fff; font-weight: 700; }
 .mc-cal-day.in-range{ background: color-mix(in srgb, var(--accent, #C97A3D) 45%, transparent); }
 .mc-cal-legend{ display: flex; gap: 1.2rem; flex-wrap: wrap; margin-top: 1rem; font-size: 0.76rem; opacity: 0.8; }
@@ -103,7 +126,9 @@
 .mc-cal-legend .dot.available{ background: color-mix(in srgb, var(--accent, #C97A3D) 30%, transparent); }
 .mc-cal-legend .dot.pending{ background: #E8B84B; }
 .mc-cal-legend .dot.blocked{ background: #C1441F; }
+.mc-cal-legend .dot.shared{ background: linear-gradient(135deg, #C1441F 0 50%, color-mix(in srgb, var(--accent, #C97A3D) 30%, transparent) 50% 100%); }
 .mc-cal-selection{ margin-top: 1.2rem; font-size: 0.92rem; min-height: 1.4em; }
+.mc-cal-total{ display: inline-block; margin-top: 0.15rem; color: color-mix(in srgb, var(--accent, #C97A3D) 80%, #000); }
 
 .mc-booking-form{ display: flex; flex-direction: column; gap: 0.9rem; min-width: 0; }
 .mc-field-row{ display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.8rem; }

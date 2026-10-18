@@ -11,37 +11,91 @@
 
   function daysInMonth(year, month) { return new Date(year, month, 0).getDate(); }
 
+  const NIGHT_PRICE = 640;
+
+  function parseIso(key) { const [y, m, d] = key.split('-').map(Number); return new Date(y, m - 1, d); }
+  function addDays(key, n) { const dt = parseIso(key); dt.setDate(dt.getDate() + n); return iso(dt.getFullYear(), dt.getMonth() + 1, dt.getDate()); }
+  function isSaturday(key) { return parseIso(key).getDay() === 6; }
+  function nightsBetween(a, b) { return Math.round((parseIso(b) - parseIso(a)) / 86400000); }
+  function euro(amount, locale) {
+    const text = new Intl.NumberFormat(locale === 'en' ? 'en-GB' : 'fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(amount);
+    // Intl sépare les milliers par une espace fine insécable (U+202F), absente de
+    // certaines polices : on la remplace par l'espace insécable classique.
+    return text.replace(/ /g, ' ');
+  }
+
+  // Une réservation occupe les nuits [arrivée, départ[ : le samedi d'arrivée est pris
+  // à partir de l'après-midi, le samedi de départ se libère le matin. Un même samedi
+  // peut donc clore un séjour et en ouvrir un autre. Statut de chaque jour (juillet
+  // et août) :
+  //   available : nuit libre, veille libre
+  //   out       : nuit libre, veille occupée (un séjour se termine ce matin)
+  //   in        : nuit occupée, veille libre (un séjour commence cet après-midi)
+  //   blocked   : nuit et veille occupées (y compris un samedi qui enchaîne deux séjours)
+  //   past      : jour passé
+  //   closed    : nuit libre mais hors d'une semaine complète du calendrier (avant le
+  //               premier samedi ou à partir du dernier), donc non réservable
   function buildStatusMap(year, ranges) {
-    // status per ISO date string, only for July (7) and August (8)
+    const occupied = new Set();
+    ranges.forEach((r) => {
+      for (let k = r.start_date; k < r.end_date; k = addDays(k, 1)) occupied.add(k);
+    });
+    const today = todayIso();
     const map = new Map();
     [7, 8].forEach((month) => {
       const n = daysInMonth(year, month);
-      for (let d = 1; d <= n; d++) map.set(iso(year, month, d), 'available');
-    });
-    ranges.forEach((r) => {
-      let cur = new Date(r.start_date + 'T00:00:00');
-      const end = new Date(r.end_date + 'T00:00:00');
-      while (cur <= end) {
-        const key = iso(cur.getFullYear(), cur.getMonth() + 1, cur.getDate());
-        if (map.has(key)) map.set(key, 'blocked');
-        cur.setDate(cur.getDate() + 1);
+      for (let d = 1; d <= n; d++) {
+        const key = iso(year, month, d);
+        const night = occupied.has(key);
+        const eve = occupied.has(addDays(key, -1));
+        let status = 'available';
+        if (night && eve) status = 'blocked';
+        else if (night) status = 'in';
+        else if (eve) status = 'out';
+        if (key < today && status !== 'blocked') status = 'past';
+        map.set(key, status);
       }
     });
-    const today = todayIso();
-    map.forEach((v, k) => { if (k < today && v === 'available') map.set(k, 'past'); });
+    // Un séjour va d'un samedi à un autre samedi du calendrier : les nuits en dehors
+    // de [premier samedi, dernier samedi[ ne peuvent appartenir à aucun séjour.
+    const saturdays = [...map.keys()].filter(isSaturday);
+    const first = saturdays[0];
+    const last = saturdays[saturdays.length - 1];
+    map.forEach((status, key) => {
+      if ((key < first || key >= last) && nightFree(status)) map.set(key, 'closed');
+    });
     return map;
   }
 
-  function rangeHasBlocker(statusMap, startIso, endIso) {
-    let cur = new Date(startIso + 'T00:00:00');
-    const end = new Date(endIso + 'T00:00:00');
-    while (cur <= end) {
-      const key = iso(cur.getFullYear(), cur.getMonth() + 1, cur.getDate());
-      const s = statusMap.get(key);
-      if (s === 'blocked' || s === 'past' || s === undefined) return true;
-      cur.setDate(cur.getDate() + 1);
+  function nightFree(status) { return status === 'available' || status === 'out'; }
+
+  // On arrive un samedi dont la nuit est libre.
+  function canArrive(map, key) { return isSaturday(key) && nightFree(map.get(key)); }
+
+  // On repart un samedi postérieur à l'arrivée, à condition que toutes les nuits
+  // entre les deux soient libres. La nuit du samedi de départ, elle, peut être prise.
+  function canDepart(map, start, key) {
+    if (!map.has(key) || !isSaturday(key) || key <= start) return false;
+    for (let k = start; k < key; k = addDays(k, 1)) {
+      if (!nightFree(map.get(k))) return false;
     }
-    return false;
+    return true;
+  }
+
+  function isClickable(map, selection, key) {
+    const picking = selection.start && !selection.end;
+    if (picking && (key === selection.start || canDepart(map, selection.start, key))) return true;
+    return canArrive(map, key);
+  }
+
+  function dayAriaLabel(day, monthLabel, status, locale) {
+    const en = locale === 'en';
+    const date = `${day} ${monthLabel}`;
+    if (status === 'blocked') return `${date}, ${en ? 'occupied' : 'occupé'}`;
+    if (status === 'in') return `${date}, ${en ? 'occupied from the afternoon' : "occupé à partir de l'après-midi"}`;
+    if (status === 'out') return `${date}, ${en ? 'free from the afternoon' : "libre à partir de l'après-midi"}, ${euro(NIGHT_PRICE, locale)}`;
+    if (status === 'available') return `${date}, ${euro(NIGHT_PRICE, locale)}`;
+    return date;
   }
 
   function widgetHtml() {
@@ -57,8 +111,9 @@
           <div class="mc-cal-legend">
             <span><i class="dot available"></i><span data-fr="Disponible" data-en="Available">Disponible</span></span>
             <span><i class="dot blocked"></i><span data-fr="Occupé" data-en="Occupied">Occupé</span></span>
+            <span><i class="dot shared"></i><span data-fr="Samedi partagé : arrivée ou départ possible" data-en="Shared Saturday: arrival or departure possible">Samedi partagé : arrivée ou départ possible</span></span>
           </div>
-          <p class="mc-cal-selection" data-empty-fr="Choisissez une date d'arrivée, puis une date de départ." data-empty-en="Pick an arrival date, then a departure date."></p>
+          <p class="mc-cal-selection" data-empty-fr="Réservez du samedi au samedi : choisissez votre samedi d'arrivée, puis votre samedi de départ." data-empty-en="Book from Saturday to Saturday: pick your arrival Saturday, then your departure Saturday."></p>
         </div>
         <form class="mc-booking-form" novalidate>
           <input type="text" name="website" class="mc-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -251,12 +306,21 @@
       const status = statusMap.get(key) || 'unavailable';
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = `mc-cal-day s-${status}`;
-      btn.textContent = String(d);
+      btn.className = `mc-cal-day s-${status} ${isSaturday(key) ? 'is-sat' : 'not-sat'}`;
+      const num = document.createElement('span');
+      num.textContent = String(d);
+      btn.appendChild(num);
+      if (nightFree(status)) {
+        const price = document.createElement('span');
+        price.className = 'p';
+        price.textContent = `${NIGHT_PRICE}€`;
+        btn.appendChild(price);
+      }
+      btn.setAttribute('aria-label', dayAriaLabel(d, monthLabel, status, locale));
       btn.dataset.date = key;
       if (selection.start === key || selection.end === key) btn.classList.add('selected');
       if (selection.start && selection.end && key > selection.start && key < selection.end) btn.classList.add('in-range');
-      if (status !== 'available') btn.disabled = true;
+      btn.disabled = !isClickable(statusMap, selection, key);
       grid.appendChild(btn);
     }
     wrap.appendChild(grid);
@@ -325,15 +389,19 @@
         const names = l === 'en' ? MONTH_NAMES_EN : MONTH_NAMES_FR;
         return `${d} ${names[m - 1]} ${y}`;
       };
-      if (selection.start && !selection.end) {
+      if (!selection.end) {
         selectionEl.textContent = l === 'en'
-          ? `Arrival: ${fmt(selection.start)} — now pick a departure date.`
-          : `Arrivée : ${fmt(selection.start)} — choisissez maintenant la date de départ.`;
-      } else {
-        selectionEl.textContent = l === 'en'
-          ? `${fmt(selection.start)} → ${fmt(selection.end)}`
-          : `${fmt(selection.start)} → ${fmt(selection.end)}`;
+          ? `Arrival on Saturday ${fmt(selection.start)}. Now pick your departure Saturday.`
+          : `Arrivée le samedi ${fmt(selection.start)}. Choisissez maintenant votre samedi de départ.`;
+        return;
       }
+      const nights = nightsBetween(selection.start, selection.end);
+      const nightsLabel = l === 'en' ? (nights > 1 ? 'nights' : 'night') : (nights > 1 ? 'nuits' : 'nuit');
+      const total = document.createElement('strong');
+      total.className = 'mc-cal-total';
+      total.textContent = `${nights} ${nightsLabel} × ${euro(NIGHT_PRICE, l)} = ${euro(nights * NIGHT_PRICE, l)}`;
+      selectionEl.textContent = `${fmt(selection.start)} → ${fmt(selection.end)}`;
+      selectionEl.append(document.createElement('br'), total);
     }
 
     function render() {
@@ -358,6 +426,12 @@
         console.warn('[booking] Impossible de charger les disponibilités.', e);
       }
       statusMap = buildStatusMap(year, ranges);
+      // Une sélection faite avant le rafraîchissement peut être devenue indisponible.
+      if (selection.start && !canArrive(statusMap, selection.start)) {
+        selection.start = null; selection.end = null;
+      } else if (selection.end && !canDepart(statusMap, selection.start, selection.end)) {
+        selection.end = null;
+      }
       render();
     }
 
@@ -376,22 +450,14 @@
       const btn = e.target.closest('.mc-cal-day');
       if (!btn || btn.disabled) return;
       const key = btn.dataset.date;
-      if (!selection.start || (selection.start && selection.end)) {
-        selection.start = key;
-        selection.end = null;
-      } else if (key < selection.start) {
-        selection.start = key;
-        selection.end = null;
-      } else if (key === selection.start) {
+      const picking = selection.start && !selection.end;
+      if (picking && key === selection.start) {
         selection.start = null;
+      } else if (picking && canDepart(statusMap, selection.start, key)) {
+        selection.end = key;
+      } else if (canArrive(statusMap, key)) {
+        selection.start = key;
         selection.end = null;
-      } else {
-        if (rangeHasBlocker(statusMap, selection.start, key)) {
-          selection.start = key;
-          selection.end = null;
-        } else {
-          selection.end = key;
-        }
       }
       render();
     });
@@ -401,7 +467,7 @@
       errorEl.hidden = true;
       const l = locale();
       if (!selection.start || !selection.end) {
-        errorEl.textContent = l === 'en' ? 'Please select an arrival and a departure date.' : 'Merci de sélectionner une date d\'arrivée et de départ.';
+        errorEl.textContent = l === 'en' ? 'Please select an arrival Saturday and a departure Saturday.' : 'Merci de sélectionner un samedi d\'arrivée et un samedi de départ.';
         errorEl.hidden = false;
         return;
       }
