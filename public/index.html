@@ -126,16 +126,42 @@
   /* Hauteur minimale d'un écran, mais le bloc grandit si son contenu ne tient pas :
      associé à la marge haute (barre de menu fixe ~4.4rem), le texte ne passe jamais
      sous le menu, quelle que soit la hauteur de la fenêtre. */
+  /* Surtitre et titre en haut, juste sous la barre de menu (sur le feuillage de
+     l'olivier) ; description et stats en bas. Le contenu remplit toute la hauteur
+     (align-items: stretch) et l'espace libre se place entre les deux groupes. */
   .hero{
     position: relative; min-height: max(100svh, 620px); padding-top: 6.5rem;
-    display: flex; align-items: flex-end; color: #fff; overflow: hidden;
+    display: flex; align-items: stretch; color: #fff; overflow: hidden;
   }
   .hero img{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  .hero::after{ content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgb(20 14 10 / .8) 0%, rgb(20 14 10 / .2) 45%, rgb(20 14 10 / .08) 70%); }
-  .hero-content{ position: relative; z-index: 2; padding-block-end: var(--space-4); width: 100%; }
+  /* Deux voiles : en bas pour la description et les stats, en haut pour le surtitre et
+     le titre, posés sur le feuillage de l'olivier dont le vert moyen manque de contraste. */
+  .hero::after{
+    content: ""; position: absolute; inset: 0;
+    background:
+      linear-gradient(to bottom, rgb(20 14 10 / .55) 0%, rgb(20 14 10 / .3) 25%, rgb(20 14 10 / 0) 50%),
+      linear-gradient(to top, rgb(20 14 10 / .8) 0%, rgb(20 14 10 / .2) 45%, rgb(20 14 10 / .08) 70%);
+  }
+  /* Sur téléphone, le recadrage centré place le surtitre sur le ciel et non sur
+     l'olivier ; recadrer vers l'arbre ferait sortir la maison de l'image, on fonce
+     donc un peu plus le haut. */
+  @media (max-width: 900px){
+    .hero::after{
+      background:
+        linear-gradient(to bottom, rgb(20 14 10 / .7) 0%, rgb(20 14 10 / .45) 25%, rgb(20 14 10 / 0) 55%),
+        linear-gradient(to top, rgb(20 14 10 / .8) 0%, rgb(20 14 10 / .2) 45%, rgb(20 14 10 / .08) 70%);
+    }
+  }
+  .hero-content{ position: relative; z-index: 2; padding-block-end: var(--space-4); width: 100%; display: flex; flex-direction: column; }
+  /* Doré clair défini ici et non en style inline : content-engine réinitialise
+     el.style.color sur tout élément [data-edit-id], ce qui effaçait la couleur inline
+     et laissait l'orange foncé de .eyebrow, peu lisible sur photo. */
+  .hero .eyebrow, .band .eyebrow{ color: #f2c894; }
+  .hero .eyebrow{ text-shadow: 0 1px 3px rgb(0 0 0 / .65), 0 0 14px rgb(0 0 0 / .4); }
   /* Le terme en vh réduit le titre sur les écrans peu hauts, où il poussait tout le reste vers le haut. */
-  .hero h1{ font-size: clamp(2.4rem, min(1.7rem + 3.6vw, 8.5vh), 4.8rem); line-height: 1.05; font-style: italic; max-width: 20ch; }
-  .hero p.lede{ margin-top: var(--space-2); max-width: 52ch; font-size: 1.1rem; color: rgb(255 255 255 / .92); text-wrap: pretty; }
+  .hero h1{ font-size: clamp(2.4rem, min(1.7rem + 3.6vw, 8.5vh), 4.8rem); line-height: 1.05; font-style: italic; max-width: 20ch; margin-bottom: var(--space-3); }
+  /* margin-top: auto pousse la description (et les stats qui suivent) en bas du bloc. */
+  .hero p.lede{ margin-top: auto; max-width: 52ch; font-size: 1.1rem; color: rgb(255 255 255 / .92); text-wrap: pretty; }
   .hero .stat-row{ display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-3); }
   .hero .stat-row .stat{ font-family: var(--font-display); font-style: italic; }
   .hero .stat-row .stat strong{ font-size: 1.5rem; font-style: normal; display: block; }
@@ -146,9 +172,11 @@
   @media (min-width: 901px){
     .hero-content{
       display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: var(--space-4);
-      grid-template-areas: "eyebrow eyebrow" "title title" "lede stats";
+      grid-template-areas: "eyebrow eyebrow" "title title" ". ." "lede stats";
+      grid-template-rows: auto auto 1fr auto;
       align-items: end;
     }
+    .hero .eyebrow, .hero h1{ align-self: start; }
     .hero .eyebrow{ grid-area: eyebrow; }
     .hero h1{ grid-area: title; }
     /* margin-bottom: 0 — la marge par défaut du <p> décalait les stats de ~18px vers le bas. */
@@ -311,7 +339,7 @@
   <section class="hero">
     <img src="/assets/images/IMG_3862.jpeg" data-edit-id="hero.photo" alt="Le Mas Cambarlaud, façade en pierre">
     <div class="hero-content wrap">
-      <p class="eyebrow" style="color:#f2c894;" data-edit-id="hero.eyebrow" data-en="Uzès, Gard — seasonal rental">Uzès, Gard — location saisonnière</p>
+      <p class="eyebrow" data-edit-id="hero.eyebrow" data-en="Uzès, Gard — seasonal rental">Uzès, Gard — location saisonnière</p>
       <h1 data-edit-id="hero.title" data-en="An architect's house, carved from stone and light">Une maison d'architecte, taillée dans la pierre et la lumière</h1>
       <p class="lede" data-edit-id="hero.lede" data-en="4 km from Uzès, a traditionally built family house of 240&nbsp;m² for 12 people, with a 12-metre pool and six air-conditioned bedrooms, set on a 4,000&nbsp;m² estate deep in nature, in rare&nbsp;comfort.">À 4 km d'Uzès, maison familiale à l'ancienne de 240&nbsp;m² pour 12 personnes, avec piscine de 12 mètres et six chambres climatisées, posée sur un domaine de 4000&nbsp;m² en pleine nature, dans un confort&nbsp;rare.</p>
       <div class="stat-row">
@@ -355,7 +383,7 @@
   <section id="soir" class="band">
     <img src="/assets/images/IMG_8278.jpeg" data-edit-id="pool.photo" alt="La piscine de 12 mètres du Mas Cambarlaud et le mas en arrière-plan">
     <div class="band-content">
-      <p class="eyebrow" style="color:#f2c894;" data-edit-id="pool.eyebrow" data-en="The pool">La piscine</p>
+      <p class="eyebrow" data-edit-id="pool.eyebrow" data-en="The pool">La piscine</p>
       <h2 data-edit-id="pool.title" data-en="12 metres of gentle water, under the stars">12 mètres d'eau douce, sous les étoiles</h2>
       <p data-edit-id="pool.text" data-en="Treated with a UV lamp to be as gentle as possible on the skin, the pool lights up every evening alongside the veranda and garden — for dinners that stretch late into the night.">Traitée par lampe UV pour respecter au mieux la peau, la piscine s'illumine chaque soir aux côtés de la véranda et du jardin — pour des dîners qui s'étirent tard.</p>
     </div>
