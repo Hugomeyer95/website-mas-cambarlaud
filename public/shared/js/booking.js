@@ -35,6 +35,14 @@
   //   past      : jour passé
   //   closed    : nuit libre mais hors d'une semaine complète du calendrier (avant le
   //               premier samedi ou à partir du dernier), donc non réservable
+  // Le séjour qui commence le dernier samedi d'août se termine le samedi suivant, début
+  // septembre : la saison s'étend donc jusqu'à ce samedi de départ.
+  function seasonEnd(year) {
+    const aug31 = iso(year, 8, 31);
+    const lastAugSaturday = addDays(aug31, -((parseIso(aug31).getDay() + 1) % 7));
+    return addDays(lastAugSaturday, 7);
+  }
+
   function buildStatusMap(year, ranges) {
     const occupied = new Set();
     ranges.forEach((r) => {
@@ -42,20 +50,17 @@
     });
     const today = todayIso();
     const map = new Map();
-    [7, 8].forEach((month) => {
-      const n = daysInMonth(year, month);
-      for (let d = 1; d <= n; d++) {
-        const key = iso(year, month, d);
-        const night = occupied.has(key);
-        const eve = occupied.has(addDays(key, -1));
-        let status = 'available';
-        if (night && eve) status = 'blocked';
-        else if (night) status = 'in';
-        else if (eve) status = 'out';
-        if (key < today && status !== 'blocked') status = 'past';
-        map.set(key, status);
-      }
-    });
+    const end = seasonEnd(year);
+    for (let key = iso(year, 7, 1); key <= end; key = addDays(key, 1)) {
+      const night = occupied.has(key);
+      const eve = occupied.has(addDays(key, -1));
+      let status = 'available';
+      if (night && eve) status = 'blocked';
+      else if (night) status = 'in';
+      else if (eve) status = 'out';
+      if (key < today && status !== 'blocked') status = 'past';
+      map.set(key, status);
+    }
     // Un séjour va d'un samedi à un autre samedi du calendrier : les nuits en dehors
     // de [premier samedi, dernier samedi[ ne peuvent appartenir à aucun séjour.
     const saturdays = [...map.keys()].filter(isSaturday);
@@ -282,7 +287,9 @@
     `;
   }
 
-  function renderMonth(year, month, monthLabel, statusMap, selection, locale) {
+  // nextMonthLabel : si fourni, les jours du mois suivant présents dans la saison
+  // (début septembre) sont ajoutés à la suite de la grille.
+  function renderMonth(year, month, monthLabel, statusMap, selection, locale, nextMonthLabel) {
     const wrap = document.createElement('div');
     wrap.className = 'mc-cal-month';
     const dow = locale === 'en' ? DOW_EN : DOW_FR;
@@ -303,15 +310,13 @@
     const firstDow = (new Date(year, month - 1, 1).getDay() + 6) % 7; // Monday = 0
     for (let i = 0; i < firstDow; i++) grid.appendChild(document.createElement('span'));
 
-    const n = daysInMonth(year, month);
-    for (let d = 1; d <= n; d++) {
-      const key = iso(year, month, d);
+    function dayButton(key, day, label, isNext) {
       const status = statusMap.get(key) || 'unavailable';
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = `mc-cal-day s-${status} ${isSaturday(key) ? 'is-sat' : 'not-sat'}`;
+      btn.className = `mc-cal-day s-${status} ${isSaturday(key) ? 'is-sat' : 'not-sat'}${isNext ? ' is-next' : ''}`;
       const num = document.createElement('span');
-      num.textContent = String(d);
+      num.textContent = String(day);
       btn.appendChild(num);
       if (nightFree(status)) {
         const price = document.createElement('span');
@@ -319,12 +324,21 @@
         price.textContent = `${NIGHT_PRICE}€`;
         btn.appendChild(price);
       }
-      btn.setAttribute('aria-label', dayAriaLabel(d, monthLabel, status, locale));
+      btn.setAttribute('aria-label', dayAriaLabel(day, label, status, locale));
+      btn.title = `${day} ${label}`;
       btn.dataset.date = key;
       if (selection.start === key || selection.end === key) btn.classList.add('selected');
       if (selection.start && selection.end && key > selection.start && key < selection.end) btn.classList.add('in-range');
       btn.disabled = !isClickable(statusMap, selection, key);
-      grid.appendChild(btn);
+      return btn;
+    }
+
+    const n = daysInMonth(year, month);
+    for (let d = 1; d <= n; d++) grid.appendChild(dayButton(iso(year, month, d), d, monthLabel, false));
+    if (nextMonthLabel) {
+      for (let d = 1; statusMap.has(iso(year, month + 1, d)); d++) {
+        grid.appendChild(dayButton(iso(year, month + 1, d), d, nextMonthLabel, true));
+      }
     }
     wrap.appendChild(grid);
     return wrap;
@@ -416,7 +430,7 @@
       monthsEl.innerHTML = '';
       const names = l === 'en' ? MONTH_NAMES_EN : MONTH_NAMES_FR;
       monthsEl.appendChild(renderMonth(year, 7, `${names[6]} ${year}`, statusMap, selection, l));
-      monthsEl.appendChild(renderMonth(year, 8, `${names[7]} ${year}`, statusMap, selection, l));
+      monthsEl.appendChild(renderMonth(year, 8, `${names[7]} ${year}`, statusMap, selection, l, `${names[8]} ${year}`));
       renderSelectionText();
     }
 

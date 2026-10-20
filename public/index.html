@@ -64,7 +64,10 @@
     padding: 0.5rem 0.6rem 0.5rem 1.3rem;
     box-shadow: 0 12px 30px -14px rgb(0 0 0 / .5);
     max-width: calc(100vw - 1.5rem);
+    transition: opacity 0.45s ease, transform 0.45s ease;
   }
+  /* Masquée quand on cesse de défiler (voir script en bas de page) : fondu vers le haut. */
+  header.cartouche.is-hidden{ opacity: 0; transform: translate(-50%, -140%); pointer-events: none; }
   .nav-inner{ display: flex; align-items: center; gap: var(--space-2); }
   .wordmark{
     font-family: var(--font-display); font-style: italic; font-size: 1.5rem; color: #fff; text-decoration: none; white-space: nowrap;
@@ -120,22 +123,42 @@
   }
 
   /* ---------- Hero ---------- */
-  .hero{ position: relative; height: 100svh; min-height: 620px; display: flex; align-items: flex-end; color: #fff; overflow: hidden; }
+  /* Hauteur minimale d'un écran, mais le bloc grandit si son contenu ne tient pas :
+     associé à la marge haute (barre de menu fixe ~4.4rem), le texte ne passe jamais
+     sous le menu, quelle que soit la hauteur de la fenêtre. */
+  .hero{
+    position: relative; min-height: max(100svh, 620px); padding-top: 6.5rem;
+    display: flex; align-items: flex-end; color: #fff; overflow: hidden;
+  }
   .hero img{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .hero::after{ content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgb(20 14 10 / .8) 0%, rgb(20 14 10 / .2) 45%, rgb(20 14 10 / .08) 70%); }
   .hero-content{ position: relative; z-index: 2; padding-block-end: var(--space-4); width: 100%; }
-  .hero h1{ font-size: clamp(2.4rem, 1.7rem + 3.6vw, 4.8rem); line-height: 1.05; font-style: italic; max-width: 20ch; }
-  .hero p.lede{ margin-top: var(--space-2); max-width: 52ch; font-size: 1.1rem; color: rgb(255 255 255 / .92); }
-  /* Lignes coupées à la main (&#10; dans le texte) : la plus longue, « …à l'ancienne »,
-     fixe la largeur du bloc, pour que le texte ne déborde pas sur la façade claire.
-     Sous 520px les retours sont ignorés et le texte se recompose naturellement. */
-  @media (min-width: 520px){
-    .hero p.lede{ white-space: pre-line; width: max-content; max-width: 100%; }
-  }
+  /* Le terme en vh réduit le titre sur les écrans peu hauts, où il poussait tout le reste vers le haut. */
+  .hero h1{ font-size: clamp(2.4rem, min(1.7rem + 3.6vw, 8.5vh), 4.8rem); line-height: 1.05; font-style: italic; max-width: 20ch; }
+  .hero p.lede{ margin-top: var(--space-2); max-width: 52ch; font-size: 1.1rem; color: rgb(255 255 255 / .92); text-wrap: pretty; }
   .hero .stat-row{ display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-3); }
   .hero .stat-row .stat{ font-family: var(--font-display); font-style: italic; }
   .hero .stat-row .stat strong{ font-size: 1.5rem; font-style: normal; display: block; }
   .hero .stat-row .stat span{ font-size: 0.95rem; opacity: 0.85; }
+
+  /* Ordinateur : accroche à gauche (30 à 40 % de la largeur), stats à droite sur la
+     même ligne de base. Le titre occupe toute la largeur au-dessus. */
+  @media (min-width: 901px){
+    .hero-content{
+      display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: var(--space-4);
+      grid-template-areas: "eyebrow eyebrow" "title title" "lede stats";
+      align-items: end;
+    }
+    .hero .eyebrow{ grid-area: eyebrow; }
+    .hero h1{ grid-area: title; }
+    /* margin-bottom: 0 — la marge par défaut du <p> décalait les stats de ~18px vers le bas. */
+    .hero p.lede{ grid-area: lede; max-width: clamp(22rem, 36vw, 40rem); margin-bottom: 0; }
+    .hero .stat-row{ grid-area: stats; margin-top: 0; flex-wrap: nowrap; justify-content: flex-end; }
+  }
+  /* Entre 901 et 1199px, quatre stats sur une ligne laisseraient trop peu de place à l'accroche. */
+  @media (min-width: 901px) and (max-width: 1199px){
+    .hero .stat-row{ display: grid; grid-template-columns: repeat(2, auto); gap: 1rem 2rem; }
+  }
 
   .js .reveal{ opacity: 0; transform: translateY(24px); transition: opacity 0.9s ease, transform 0.9s ease; }
   .reveal.is-visible{ opacity: 1; transform: none; }
@@ -172,6 +195,20 @@
   .trio-grid figure:hover img{ transform: scale(1.04); }
   .trio-grid figcaption{ margin-top: 0.8rem; text-align: center; font-family: var(--font-display); font-style: italic; font-size: 1.1rem; }
   @media (max-width: 760px){ .trio-grid{ grid-template-columns: 1fr; max-width: 420px; margin-inline: auto; } }
+
+  /* ---------- Ordinateur : sections calées sur la hauteur de l'écran ---------- */
+  @media (min-width: 901px){
+    /* La photo de la piscine couvre tout l'écran ; object-fit: cover la recadre sans la déformer. */
+    .band{ min-height: 100vh; min-height: 100svh; }
+    /* Titre + photos tiennent dans un écran : la hauteur des photos est plafonnée par
+       celle de la fenêtre. 19.5rem = marge haute (barre de menu) + surtitre + titre +
+       légende + marge basse. Quand le plafond s'applique, la photo est recadrée. */
+    .trio{ padding-block: 5.5rem 3rem; }
+    .trio h2{ margin-bottom: 2rem; }
+    /* width: 100% explicite : sans lui, le plafond de hauteur se répercute sur la
+       largeur via aspect-ratio et la photo rétrécit au lieu d'être recadrée. */
+    .trio-grid .ph{ width: 100%; max-height: max(220px, calc(100svh - 19.5rem)); }
+  }
 
   /* ---------- Alentours ---------- */
   .alentours{ background: var(--dusk); color: var(--cream); padding-block: var(--space-5); }
@@ -276,7 +313,7 @@
     <div class="hero-content wrap">
       <p class="eyebrow" style="color:#f2c894;" data-edit-id="hero.eyebrow" data-en="Uzès, Gard — seasonal rental">Uzès, Gard — location saisonnière</p>
       <h1 data-edit-id="hero.title" data-en="An architect's house, carved from stone and light">Une maison d'architecte, taillée dans la pierre et la lumière</h1>
-      <p class="lede" data-edit-id="hero.lede" data-en="4 km from Uzès, a traditionally built family&#10;house of 240&nbsp;m² for 12 people, with a&#10;12-metre pool and six air-conditioned&#10;bedrooms, set on a 4,000&nbsp;m² estate deep&#10;in nature, in rare&nbsp;comfort.">À 4 km d'Uzès, maison familiale à l'ancienne&#10;de 240&nbsp;m² pour 12 personnes, avec piscine&#10;de 12 mètres et six chambres climatisées,&#10;posée sur un domaine de 4000&nbsp;m²&#10;en pleine nature, dans un confort&nbsp;rare.</p>
+      <p class="lede" data-edit-id="hero.lede" data-en="4 km from Uzès, a traditionally built family house of 240&nbsp;m² for 12 people, with a 12-metre pool and six air-conditioned bedrooms, set on a 4,000&nbsp;m² estate deep in nature, in rare&nbsp;comfort.">À 4 km d'Uzès, maison familiale à l'ancienne de 240&nbsp;m² pour 12 personnes, avec piscine de 12 mètres et six chambres climatisées, posée sur un domaine de 4000&nbsp;m² en pleine nature, dans un confort&nbsp;rare.</p>
       <div class="stat-row">
         <div class="stat"><strong data-edit-id="hero.stat1.n">12</strong><span data-edit-id="hero.stat1.l" data-en="people">personnes</span></div>
         <div class="stat"><strong data-edit-id="hero.stat2.n">12 m</strong><span data-edit-id="hero.stat2.l" data-en="pool">piscine</span></div>
@@ -459,6 +496,40 @@
   } else {
     document.querySelectorAll('.reveal').forEach(i => i.classList.add('is-visible'));
   }
+
+  // Barre de menu : visible pendant le défilement et toujours en haut de page,
+  // masquée après un court arrêt. Elle reste affichée tant qu'elle est survolée,
+  // qu'elle a le focus clavier ou que le menu mobile est ouvert.
+  (function(){
+    var header = document.querySelector('header.cartouche');
+    var nav = document.getElementById('primary-nav');
+    var toggle = document.querySelector('.nav-toggle');
+    var IDLE_MS = 1200;
+    var timer = null;
+
+    function atTop(){ return window.scrollY < 8; }
+    function inUse(){ return nav.classList.contains('open') || header.matches(':hover') || header.contains(document.activeElement); }
+    function show(){ header.classList.remove('is-hidden'); }
+    function scheduleHide(){
+      clearTimeout(timer);
+      if (atTop()) return;
+      timer = setTimeout(function(){ if (!atTop() && !inUse()) header.classList.add('is-hidden'); }, IDLE_MS);
+    }
+
+    window.addEventListener('scroll', function(){ show(); scheduleHide(); }, { passive: true });
+    header.addEventListener('mouseleave', scheduleHide);
+    header.addEventListener('focusin', show);
+    header.addEventListener('focusout', scheduleHide);
+
+    // Choisir une rubrique ferme le menu mobile, sinon il resterait ouvert (et la barre affichée).
+    nav.addEventListener('click', function(e){
+      if (!e.target.closest('a')) return;
+      nav.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+    });
+
+    scheduleHide();
+  })();
 
   (function(){
     // Zone approximative, plus au nord sur la route de Jols (D125) — pas d'adresse précise affichée.

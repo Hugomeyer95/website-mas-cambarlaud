@@ -121,6 +121,8 @@
 .mc-cal-day:hover:not(:disabled):not(.selected){ background: color-mix(in srgb, var(--accent, #C97A3D) 30%, transparent); }
 .mc-cal-day.selected{ background: var(--accent, #C97A3D); color: #fff; font-weight: 700; }
 .mc-cal-day.in-range{ background: color-mix(in srgb, var(--accent, #C97A3D) 45%, transparent); }
+/* Jours de début septembre affichés à la suite d'août (dernière semaine de la saison). */
+.mc-cal-day.is-next > span:first-child{ font-style: italic; opacity: 0.75; }
 .mc-cal-legend{ display: flex; gap: 1.2rem; flex-wrap: wrap; margin-top: 1rem; font-size: 0.76rem; opacity: 0.8; }
 .mc-cal-legend .dot{ display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; }
 .mc-cal-legend .dot.available{ background: color-mix(in srgb, var(--accent, #C97A3D) 30%, transparent); }
