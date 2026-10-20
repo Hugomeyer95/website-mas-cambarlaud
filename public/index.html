@@ -125,7 +125,13 @@
   .hero::after{ content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgb(20 14 10 / .8) 0%, rgb(20 14 10 / .2) 45%, rgb(20 14 10 / .08) 70%); }
   .hero-content{ position: relative; z-index: 2; padding-block-end: var(--space-4); width: 100%; }
   .hero h1{ font-size: clamp(2.4rem, 1.7rem + 3.6vw, 4.8rem); line-height: 1.05; font-style: italic; max-width: 20ch; }
-  .hero p.lede{ margin-top: var(--space-2); max-width: 52ch; font-size: 1.1rem; color: rgb(255 255 255 / .92); white-space: pre-line; }
+  .hero p.lede{ margin-top: var(--space-2); max-width: 52ch; font-size: 1.1rem; color: rgb(255 255 255 / .92); }
+  /* Lignes coupées à la main (&#10; dans le texte) : la plus longue, « …à l'ancienne »,
+     fixe la largeur du bloc, pour que le texte ne déborde pas sur la façade claire.
+     Sous 520px les retours sont ignorés et le texte se recompose naturellement. */
+  @media (min-width: 520px){
+    .hero p.lede{ white-space: pre-line; width: max-content; max-width: 100%; }
+  }
   .hero .stat-row{ display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-3); }
   .hero .stat-row .stat{ font-family: var(--font-display); font-style: italic; }
   .hero .stat-row .stat strong{ font-size: 1.5rem; font-style: normal; display: block; }
@@ -270,7 +276,7 @@
     <div class="hero-content wrap">
       <p class="eyebrow" style="color:#f2c894;" data-edit-id="hero.eyebrow" data-en="Uzès, Gard — seasonal rental">Uzès, Gard — location saisonnière</p>
       <h1 data-edit-id="hero.title" data-en="An architect's house, carved from stone and light">Une maison d'architecte, taillée dans la pierre et la lumière</h1>
-      <p class="lede" data-edit-id="hero.lede" data-en="4 km from Uzès, a traditionally built family house of 240&nbsp;m²&#10;for 12 people, with a 12-metre pool and six air-conditioned bedrooms, set on a 4,000&nbsp;m² estate deep in nature, in rare comfort.">À 4 km d'Uzès, maison familiale à l'ancienne de 240&nbsp;m²&#10;pour 12 personnes, avec piscine de 12 mètres et six chambres climatisées, posée sur un domaine de 4000&nbsp;m² en pleine nature, dans un confort rare.</p>
+      <p class="lede" data-edit-id="hero.lede" data-en="4 km from Uzès, a traditionally built family&#10;house of 240&nbsp;m² for 12 people, with a&#10;12-metre pool and six air-conditioned&#10;bedrooms, set on a 4,000&nbsp;m² estate deep&#10;in nature, in rare&nbsp;comfort.">À 4 km d'Uzès, maison familiale à l'ancienne&#10;de 240&nbsp;m² pour 12 personnes, avec piscine&#10;de 12 mètres et six chambres climatisées,&#10;posée sur un domaine de 4000&nbsp;m²&#10;en pleine nature, dans un confort&nbsp;rare.</p>
       <div class="stat-row">
         <div class="stat"><strong data-edit-id="hero.stat1.n">12</strong><span data-edit-id="hero.stat1.l" data-en="people">personnes</span></div>
         <div class="stat"><strong data-edit-id="hero.stat2.n">12 m</strong><span data-edit-id="hero.stat2.l" data-en="pool">piscine</span></div>

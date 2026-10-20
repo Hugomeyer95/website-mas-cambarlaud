@@ -31,7 +31,7 @@ const isSaturday = (s) => typeof s === 'string'
   && new Date(`${s}T00:00:00Z`).getUTCDay() === 6;
 
 // Incrémenter à chaque modification : permet de vérifier quelle version est en ligne.
-const FN_VERSION = 3;
+const FN_VERSION = 4;
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -63,6 +63,14 @@ exports.handler = async (event) => {
     const error = booking.locale === 'en'
       ? 'Stays run from Saturday to Saturday.'
       : 'Les séjours se font du samedi au samedi.';
+    return { statusCode: 400, body: JSON.stringify({ error }) };
+  }
+
+  const guestCount = Number(guests);
+  if (!Number.isInteger(guestCount) || guestCount < 1 || guestCount > 12) {
+    const error = booking.locale === 'en'
+      ? 'Please select the number of guests (1 to 12).'
+      : 'Merci d\'indiquer le nombre de personnes (de 1 à 12).';
     return { statusCode: 400, body: JSON.stringify({ error }) };
   }
 

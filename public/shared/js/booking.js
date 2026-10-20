@@ -139,11 +139,14 @@
           </div>
           <label class="mc-field-guests">
             <span data-fr="Nombre de personnes" data-en="Number of guests">Nombre de personnes</span>
-            <input type="number" name="guests" min="1" max="12" value="2" required>
+            <select name="guests" required>
+              <option value="" selected disabled hidden>0</option>
+              ${Array.from({ length: 12 }, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('')}
+            </select>
           </label>
           <label>
             <span data-fr="Votre message" data-en="Your message">Votre message</span>
-            <textarea name="message" rows="4" required placeholder="" data-ph-fr="Parlez-nous de votre séjour, de vos dates idéales..." data-ph-en="Tell us about your stay, your ideal dates..."></textarea>
+            <textarea name="message" rows="4" placeholder="" data-ph-fr="Optionnel : vous pouvez utiliser ce champ pour compléter votre demande." data-ph-en="Optional: you can use this field to add details to your request."></textarea>
           </label>
           <p class="mc-form-note" data-fr="Vos dates ne sont pas bloquées immédiatement : nous vous confirmons par email sous peu." data-en="Your dates aren't blocked immediately — we'll confirm by email shortly.">Vos dates ne sont pas bloquées immédiatement : nous vous confirmons par email sous peu.</p>
           <p class="mc-form-error" hidden></p>
@@ -472,6 +475,13 @@
         return;
       }
       const fd = new FormData(form);
+      // Un <option> désactivé n'est pas envoyé : tant que rien n'est choisi, la valeur est absente.
+      const guests = Number(fd.get('guests')) || 0;
+      if (guests < 1) {
+        errorEl.textContent = l === 'en' ? 'Please select the number of guests.' : 'Merci d\'indiquer le nombre de personnes.';
+        errorEl.hidden = false;
+        return;
+      }
       const payload = {
         startDate: selection.start,
         endDate: selection.end,
@@ -479,7 +489,7 @@
         lastName: fd.get('lastName'),
         email: fd.get('email'),
         phone: fd.get('phone'),
-        guests: Number(fd.get('guests')),
+        guests,
         message: fd.get('message'),
         website: fd.get('website'),
         locale: l,

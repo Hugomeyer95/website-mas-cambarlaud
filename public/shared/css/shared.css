@@ -134,14 +134,18 @@
 .mc-field-row{ display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.8rem; }
 @media (max-width: 480px){ .mc-field-row{ grid-template-columns: minmax(0, 1fr); } }
 .mc-booking-form label{ display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.8rem; opacity: 0.85; min-width: 0; }
-.mc-booking-form input, .mc-booking-form textarea{
+.mc-booking-form input, .mc-booking-form textarea, .mc-booking-form select{
   font: inherit; font-size: 0.95rem; padding: 0.6rem 0.7rem;
   border: 1px solid color-mix(in srgb, var(--ink, #222) 25%, transparent);
   border-radius: 6px; background: var(--paper, #fff); color: var(--ink, #222);
   width: 100%; min-width: 0; max-width: 100%;
 }
-.mc-booking-form input:focus, .mc-booking-form textarea:focus{ outline: 2px solid var(--accent, #C97A3D); outline-offset: 1px; }
-.mc-field-guests input{ max-width: 8ch; }
+.mc-booking-form input:focus, .mc-booking-form textarea:focus, .mc-booking-form select:focus{ outline: 2px solid var(--accent, #C97A3D); outline-offset: 1px; }
+.mc-booking-form select{ cursor: pointer; }
+.mc-booking-form select option{ color: var(--ink, #222); }
+/* Tant qu'aucun nombre n'est choisi, le « 0 » affiché se lit comme une valeur par défaut. */
+.mc-booking-form select:required:invalid{ color: color-mix(in srgb, var(--ink, #222) 55%, transparent); }
+.mc-field-guests select{ max-width: 8rem; }
 .mc-hp{ position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 .mc-form-note{ font-size: 0.76rem; opacity: 0.65; margin: 0; }
 .mc-form-error{ color: #a33; font-size: 0.85rem; margin: 0; }
