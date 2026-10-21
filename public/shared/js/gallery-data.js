@@ -2,7 +2,7 @@
 window.MC_GALLERY_IMAGES = [
   // Extérieur & façade
   { src: '/assets/images/IMG_3862.jpeg', fr: 'La façade du Mas Cambarlaud', en: 'The Mas Cambarlaud façade' },
-  { src: '/assets/images/IMG_0197.jpeg', fr: 'Le parc et la pelouse', en: 'The grounds and the lawn' },
+  { src: '/assets/images/IMG_0197.jpeg', fr: 'Le jardin et la pelouse', en: 'The garden and the lawn' },
   { src: '/assets/images/exterior-arches-olive.jpg', fr: 'Véranda à trois arches, sous l\'olivier', en: 'Three-arch stone veranda, beneath the olive tree' },
   { src: '/assets/images/IMG_0632.webp', fr: 'La terrasse sous l\'arche, à l\'ombre de l\'olivier', en: 'The terrace beneath the arch, in the olive tree\'s shade' },
   { src: '/assets/images/exterior-golden.jpg', fr: 'La façade en lumière dorée', en: 'The façade in golden light' },
@@ -15,7 +15,7 @@ window.MC_GALLERY_IMAGES = [
   { src: '/assets/images/IMG_8278.jpeg', fr: 'La piscine de 12 mètres et le mas', en: 'The 12-metre pool and the farmhouse' },
   { src: '/assets/images/IMG_8771.webp', fr: 'La piscine et ses transats', en: 'The pool and its sun loungers' },
   // Chambres
-  { src: '/assets/images/IMG_3131.jpeg', fr: 'Chambre double, vue sur le parc', en: 'Double room with park view' },
+  { src: '/assets/images/IMG_3131.jpeg', fr: 'Chambre double, vue sur le jardin', en: 'Double room with garden view' },
   { src: '/assets/images/IMG_3133.jpeg', fr: 'Chambre « taupe », à lits jumeaux', en: 'The "taupe" twin room' },
   { src: '/assets/images/IMG_3135.jpeg', fr: 'Chambre « lilas », à lit double', en: 'The "lilac" double room' },
   { src: '/assets/images/IMG_3138.webp', fr: 'Chambre à lits jumeaux, tête de lit en bois', en: 'Twin bedroom with a wooden headboard' },

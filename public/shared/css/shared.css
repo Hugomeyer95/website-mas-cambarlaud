@@ -57,9 +57,11 @@
   position: fixed; inset: 0; z-index: 410; background: rgba(0,0,0,.92);
   display: none; align-items: center; justify-content: center;
 }
-.mc-lightbox.open{ display: flex; }
-.mc-lightbox img{ max-width: 88vw; max-height: 82vh; object-fit: contain; }
-.mc-lightbox .lb-cap{ position: absolute; bottom: 1.5rem; left: 0; right: 0; text-align: center; color: #fff; font-size: 0.85rem; }
+/* Image et légende empilées : l'écart reste le même quelle que soit la taille de l'image
+   (la légende était fixée au bas de l'écran et touchait presque les grandes photos). */
+.mc-lightbox.open{ display: flex; flex-direction: column; }
+.mc-lightbox img{ max-width: 88vw; max-height: 78vh; object-fit: contain; }
+.mc-lightbox .lb-cap{ margin: 1.25rem 0 0; padding-inline: 1rem; text-align: center; color: #fff; font-size: 0.85rem; }
 .mc-lightbox button{ all: unset; cursor: pointer; position: absolute; color: #fff; font-size: 1.6rem; padding: 0.6rem 1rem; }
 .mc-lightbox .lb-close{ top: 1rem; right: 1rem; font-size: 1.2rem; }
 .mc-lightbox .lb-prev{ left: 1rem; top: 50%; transform: translateY(-50%); }
