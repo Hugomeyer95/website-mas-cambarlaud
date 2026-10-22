@@ -99,7 +99,9 @@
 /* Seuls les samedis sont réservables : ils ressortent, les autres jours restent
    lisibles (prix visible) mais sans apparence cliquable. */
 .mc-cal-day.is-sat{ font-weight: 700; }
-.mc-cal-day.is-sat.s-available:not(.selected):not(.in-range){
+/* s-out / s-in : samedis de départ et d'arrivée d'un séjour confirmé, affichés
+   comme disponibles (seules les nuits du milieu apparaissent occupées). */
+.mc-cal-day.is-sat:is(.s-available, .s-out, .s-in):not(.selected):not(.in-range){
   background: color-mix(in srgb, var(--accent, #C97A3D) 20%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent, #C97A3D) 45%, transparent);
 }
@@ -109,16 +111,7 @@
 .mc-cal-day.s-blocked{ background: #C1441F; opacity: 0.55; color: #fff; }
 .mc-cal-day.s-past{ background: transparent; }
 
-/* Samedi partagé : une moitié occupée par un autre séjour, l'autre libre.
-   s-out : le séjour précédent part le matin, on peut arriver l'après-midi.
-   s-in  : un séjour arrive l'après-midi, on peut partir le matin. */
 .mc-cal-day.s-out, .mc-cal-day.s-in{ opacity: 1; color: var(--ink, #222); }
-.mc-cal-day.s-out{
-  background: linear-gradient(135deg, rgb(193 68 31 / .55) 0 50%, color-mix(in srgb, var(--accent, #C97A3D) 22%, transparent) 50% 100%);
-}
-.mc-cal-day.s-in{
-  background: linear-gradient(135deg, color-mix(in srgb, var(--accent, #C97A3D) 22%, transparent) 0 50%, rgb(193 68 31 / .55) 50% 100%);
-}
 
 .mc-cal-day:hover:not(:disabled):not(.selected){ background: color-mix(in srgb, var(--accent, #C97A3D) 30%, transparent); }
 .mc-cal-day.selected{ background: var(--accent, #C97A3D); color: #fff; font-weight: 700; }
@@ -130,7 +123,6 @@
 .mc-cal-legend .dot.available{ background: color-mix(in srgb, var(--accent, #C97A3D) 30%, transparent); }
 .mc-cal-legend .dot.pending{ background: #E8B84B; }
 .mc-cal-legend .dot.blocked{ background: #C1441F; }
-.mc-cal-legend .dot.shared{ background: linear-gradient(135deg, #C1441F 0 50%, color-mix(in srgb, var(--accent, #C97A3D) 30%, transparent) 50% 100%); }
 .mc-cal-selection{ margin-top: 1.2rem; font-size: 0.92rem; min-height: 1.4em; }
 .mc-cal-total{ display: inline-block; margin-top: 0.15rem; color: color-mix(in srgb, var(--accent, #C97A3D) 80%, #000); }
 

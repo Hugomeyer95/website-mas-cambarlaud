@@ -87,7 +87,10 @@
     return true;
   }
 
+  // Le samedi d'arrivée d'un séjour confirmé s'affiche comme disponible : il reste
+  // cliquable même quand il ne peut pas servir, et le clic explique alors son usage.
   function isClickable(map, selection, key) {
+    if (map.get(key) === 'in') return true;
     const picking = selection.start && !selection.end;
     if (picking && (key === selection.start || canDepart(map, selection.start, key))) return true;
     return canArrive(map, key);
@@ -97,9 +100,8 @@
     const en = locale === 'en';
     const date = `${day} ${monthLabel}`;
     if (status === 'blocked') return `${date}, ${en ? 'occupied' : 'occupé'}`;
-    if (status === 'in') return `${date}, ${en ? 'occupied from the afternoon' : "occupé à partir de l'après-midi"}`;
-    if (status === 'out') return `${date}, ${en ? 'free from the afternoon' : "libre à partir de l'après-midi"}, ${euro(NIGHT_PRICE, locale)}`;
-    if (status === 'available') return `${date}, ${euro(NIGHT_PRICE, locale)}`;
+    if (status === 'in') return `${date}, ${en ? 'available as a departure Saturday' : 'disponible comme samedi de départ'}`;
+    if (status === 'available' || status === 'out') return `${date}, ${euro(NIGHT_PRICE, locale)}`;
     return date;
   }
 
@@ -116,7 +118,6 @@
           <div class="mc-cal-legend">
             <span><i class="dot available"></i><span data-fr="Disponible" data-en="Available">Disponible</span></span>
             <span><i class="dot blocked"></i><span data-fr="Occupé" data-en="Occupied">Occupé</span></span>
-            <span><i class="dot shared"></i><span data-fr="Samedi partagé : arrivée ou départ possible" data-en="Shared Saturday: arrival or departure possible">Samedi partagé : arrivée ou départ possible</span></span>
           </div>
           <p class="mc-cal-selection" data-empty-fr="Réservez du samedi au samedi : choisissez votre samedi d'arrivée, puis votre samedi de départ." data-empty-en="Book from Saturday to Saturday: pick your arrival Saturday, then your departure Saturday."></p>
         </div>
@@ -358,6 +359,7 @@
     let ranges = [];
     let statusMap = new Map();
     const selection = { start: null, end: null };
+    let hint = false;
 
     const monthsEl = mount.querySelector('.mc-cal-months');
     const yearEl = mount.querySelector('.mc-cal-year');
@@ -397,6 +399,12 @@
 
     function renderSelectionText() {
       const l = locale();
+      if (hint) {
+        selectionEl.textContent = l === 'en'
+          ? 'This Saturday is only available as a departure day: pick your arrival Saturday first.'
+          : "Ce samedi n'est disponible qu'en jour de départ : choisissez d'abord votre samedi d'arrivée.";
+        return;
+      }
       if (!selection.start) {
         selectionEl.textContent = selectionEl.dataset[l === 'en' ? 'emptyEn' : 'emptyFr'];
         return;
@@ -458,7 +466,7 @@
         const next = year + dir;
         if (next < minYear || next > maxYear) return;
         year = next;
-        selection.start = null; selection.end = null;
+        selection.start = null; selection.end = null; hint = false;
         refreshAvailability();
       });
     });
@@ -468,6 +476,7 @@
       if (!btn || btn.disabled) return;
       const key = btn.dataset.date;
       const picking = selection.start && !selection.end;
+      hint = false;
       if (picking && key === selection.start) {
         selection.start = null;
       } else if (picking && canDepart(statusMap, selection.start, key)) {
@@ -475,6 +484,8 @@
       } else if (canArrive(statusMap, key)) {
         selection.start = key;
         selection.end = null;
+      } else if (statusMap.get(key) === 'in') {
+        hint = true;
       }
       render();
     });
